@@ -1,0 +1,17 @@
+.text-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: black;
+}
+
+.text-field {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid black;
+  border-radius: 4px;
+  background-color: white;
+  box-sizing: border-box;
+  resize: none;
+}

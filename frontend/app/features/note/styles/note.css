@@ -1,0 +1,76 @@
+.note-container {
+  padding: 1rem;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.categories label {
+  display: block;
+}
+
+.categories-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  width: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #ffffff;
+  transition: background-color 0.3s ease;
+}
+
+.category-item:hover {
+  background-color: #e6f7ff;
+}
+
+.category-item input[type="checkbox"] {
+  width: 1.2rem;
+  height: 1.2rem;
+  cursor: pointer;
+}
+
+.category-item label {
+  cursor: pointer;
+}
+
+.btn-primary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.categories p {
+  margin: 1.3rem;
+}
+
+.error-text {
+  color: red;
+  font-size: 0.875rem;
+  margin-left: 6px;
+  margin-top: -8px;
+}
+
+@media (min-width: 768px) {
+  .note-container {
+    max-width: 60%;
+  }
+}

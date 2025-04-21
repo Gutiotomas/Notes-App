@@ -1,0 +1,8 @@
+body,
+html,
+input,
+textarea,
+button {
+  background-color: azure;
+  font-family:  Cochin, Georgia, Times, "Times New Roman", sans-serif;
+}

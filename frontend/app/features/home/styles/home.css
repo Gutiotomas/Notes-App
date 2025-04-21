@@ -1,0 +1,82 @@
+.home-container {
+  padding: 1rem;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.create-btn,
+.manage-categories-btn {
+  display: inline-flex;
+  width: auto;
+  margin-right: 1rem;
+}
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.note-card {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #ffffff;
+  transition: box-shadow 0.3s ease;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.note-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.categories p,
+.no-notes,
+.no-active {
+  margin: 1.3rem;
+}
+
+.note-card h3,
+p,
+.note-categories {
+  max-width: 80%;
+  justify-content: center;
+  padding-bottom: 1rem;
+  margin: 0 auto;
+}
+
+.note-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-evenly;
+}
+
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.clear-filter-btn,
+.category-btn {
+  max-width: 13ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clear-filter-btn {
+  background-color: #61707c !important;
+}
+
+.clear-filter-btn:hover {
+  background-color: #5a6268 !important;
+}
+
+@media (min-width: 768px) {
+  .home-container {
+    max-width: 60%;
+  }
+}
