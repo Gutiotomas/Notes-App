@@ -1,57 +1,63 @@
 # Frontend - Notes Application
 
-This is the frontend for the Notes Application. It is a Single Page Application (SPA) built with React and TypeScript. The frontend interacts with the backend REST API to manage users, notes, and categories.
+This is the frontend for the Notes Application — a React + TypeScript SPA built with Vite. It communicates with the backend REST API to manage users, notes, and categories.
 
----
+Quick overview
+- Create, edit, delete and archive notes
+- Add/remove categories and filter notes by category
 
-## Features Implemented
+Tech stack
+- React + TypeScript
+- Vite (dev server)
+- React Router
+- Tailwind CSS (styles)
 
-### Phase 1: Note Creation
+Getting started (development)
+1. Clone the repository and enter the frontend folder:
 
-- **Create Notes**: Users can create notes with a title and description.
-- **Edit Notes**: Users can update the content of existing notes.
-- **Delete Notes**: Users can delete notes.
-- **Archive/Unarchive Notes**: Users can toggle the archive status of notes.
-- **List Active Notes**: Users can view all active notes.
-- **List Archived Notes**: Users can view all archived notes.
-
-### Phase 2: Tag Application and Filtering
-
-- **Add/Remove Categories**: Users can assign categories (tags) to notes or remove them.
-- **Filter Notes by Category**: Users can filter notes based on assigned categories.
-
----
-
-## Technologies Used
-
-- **React**: v18.2.0 - JavaScript library for building user interfaces.
-- **TypeScript**: v5.1.6 - Superset of JavaScript for type safety.
-- **Vite**: v4.3.9 - Build tool for fast development.
-- **React Router**: v6.14.1 - Library for routing in React applications.
-- **Tailwind CSS**: v3.3.2 - Utility-first CSS framework for styling.
-
----
-
-## Installation and Setup
-
-Follow these steps to set up and run the frontend:
-
-### 1. Clone the Repository
-
+```bash
 git clone <repository-url>
 cd frontend
+```
 
-### 2. Install Dependencies
+2. Install dependencies:
 
+```bash
 npm install
+```
 
-### 3. Configure Environment Variables
+3. Configure environment variables (create `.env` in the `frontend` folder):
 
-Create a .env file in the frontend directory and add the following environment variables:
-
+```env
 VITE_API_URL=http://localhost:3000
+```
 
-### 4 Run the Application
+4. Start the dev server (Vite, default port 5173):
 
+```bash
+npm run dev
+```
+
+Building and preview
+- Build for production:
+
+```bash
 npm run build
-npm start
+```
+
+- Preview the production build locally:
+
+```bash
+npm run preview
+```
+
+Notes & troubleshooting
+- If the UI behaves unexpectedly after login/logout, clear storage in the browser console:
+
+```js
+localStorage.clear(); sessionStorage.clear(); location.reload();
+```
+- Ensure `VITE_API_URL` points to a running backend API (default http://localhost:3000).
+- Dev server logs appear in the terminal where you ran `npm run dev`.
+
+If you want, I can also add example `.env.example` files or npm scripts to orchestrate frontend+backend in one command.

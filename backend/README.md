@@ -1,68 +1,65 @@
 # Backend - Notes Application
 
-This is the backend service for the Notes Application. It provides a REST API for managing users, notes, and categories. The backend is built with Node.js, Express, and Sequelize ORM, and it uses MySQL as the relational database.
+This service provides the REST API for users, notes and categories. It uses Express + Sequelize and expects a MySQL database.
 
----
+Main capabilities
+- User registration / authentication (JWT)
+- CRUD for notes and categories
+- Archive/unarchive notes
+- User-scoped categories
 
-## Features Implemented
+Getting started
+1. Clone the repo and enter the backend folder:
 
-### Phase 1: Note Creation
-
-- **Create Notes**: Users can create notes with a title and description.
-- **Edit Notes**: Users can update the content of existing notes.
-- **Delete Notes**: Users can delete notes.
-- **Archive/Unarchive Notes**: Users can toggle the archive status of notes.
-- **List Active Notes**: Users can view all active notes.
-- **List Archived Notes**: Users can view all archived notes.
-
-### Phase 2: Tag Application and Filtering
-
-- **Add/Remove Categories**: Users can assign categories (tags) to notes or remove them.
-- **Filter Notes by Category**: Users can filter notes based on assigned categories.
-
-### User-Specific Categories
-
-- Categories are user-specific, meaning each user can only see and manage their own categories.
-
----
-
-## Technologies Used
-
-- **Node.js**: v18.17.0 - JavaScript runtime for building the backend.
-- **Express**: v5.1.0 - Web framework for building REST APIs.
-- **Sequelize**: v6.37.7 - ORM for interacting with the MySQL database.
-- **MySQL**: v8.0.33 - Relational database for persisting data.
-- **jsonwebtoken**: v9.0.2 - Library for generating and verifying JWT tokens.
-- **bcrypt**: v5.1.1 - Library for hashing passwords.
-
----
-
-## Installation and Setup
-
-Follow these steps to set up and run the backend:
-
-### 1. Clone the Repository
-
+```bash
 git clone <repository-url>
 cd backend
+```
 
-### 2. Install Dependencies
+2. Install dependencies:
 
+```bash
 npm install
+```
 
-### 3. Configure Environment Variables
+3. Configure environment variables — create a `.env` file in `backend` with values similar to:
 
-Create a .env file in the backend directory and add the following environment variables:
-
+```env
 PORT=3000
 DB_HOST=localhost
 DB_PORT=3306
-DB_USER=your_database_user
-DB_PASSWORD=your_database_password
+DB_USER=root
+DB_PASSWORD=secret
 DB_NAME=notes_app
-JWT_SECRET=your_jwt_secret
+JWT_SECRET=replace-with-a-secure-secret
+```
 
-### 4. Run the Application
+Database setup & migrations
+- Ensure your MySQL server is running and the configured DB user can create the database.
+- Run migrations (if using sequelize-cli):
 
+```bash
+npx sequelize-cli db:migrate
+npx sequelize-cli db:seed:all
+```
+
+Running the server
+- Development (auto-restart):
+
+```bash
+npm run dev
+```
+
+- Production (build + start):
+
+```bash
 npm run build
 npm start
+```
+
+Useful notes
+- The server defaults to `http://localhost:3000` (use `PORT` to change).
+- If you use the provided `start-app.sh` helper, run it from a POSIX shell (WSL, Git Bash) on Windows.
+- If you see authentication failures from the frontend, verify `JWT_SECRET` matches and that the frontend `VITE_API_URL` points to this backend.
+
+If you want, I can add a `.env.example` and npm scripts to run frontend+backend together (or a simple Docker Compose file).
