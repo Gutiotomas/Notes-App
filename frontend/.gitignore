@@ -5,3 +5,5 @@
 /.react-router/
 /build/
 .env
+# Ignore well-known devtools placeholder
+public/.well-known/

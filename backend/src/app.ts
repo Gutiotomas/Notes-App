@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -11,11 +12,8 @@ dotenv.config();
 
 const app = express();
 
-// Retrieve the PORT from environment variables
-const PORT = process.env.PORT;
-if (!PORT) {
-  throw new Error("PORT environment variable is not defined");
-}
+// Retrieve the PORT from environment variables (default to 3000)
+const PORT = process.env.PORT || "3000";
 
 // Middleware to enable Cross-Origin Resource Sharing (CORS)
 app.use(cors());

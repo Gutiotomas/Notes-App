@@ -6,19 +6,19 @@ set -e
 # Define environment variables
 BACKEND_DIR="backend"
 FRONTEND_DIR="frontend"
-# Backend environment variables
-DB_NAME="notes_app"
-DB_USER="root"
-DB_PASSWORD="root"
-DB_HOST="localhost"
-DB_PORT="3306"
-PORT=3000
-JWT_SECRET=3f9c8b7e-4d2a-4e6f-9a1e-2c5d7f8a9b0c
-SEED_USER_NAME=admin
-SEED_USER_EMAIL=admin@example.com
-SEED_USER_PASSWORD=admin1234
-# Frontend environment variable
-VITE_API_URL="http://localhost:3000"
+# Backend environment variables (exported so Node/seeders see them)
+export DB_NAME="notes_app"
+export DB_USER="root"
+export DB_PASSWORD="root"
+export DB_HOST="localhost"
+export DB_PORT="3306"
+export PORT=3000
+export JWT_SECRET=3f9c8b7e-4d2a-4e6f-9a1e-2c5d7f8a9b0c
+export SEED_USER_NAME=admin
+export SEED_USER_EMAIL=admin@example.com
+export SEED_USER_PASSWORD=admin1234
+# Frontend environment variable (exported so build/dev can use it)
+export VITE_API_URL="http://localhost:3000"
 
 # Step 1: Check for required dependencies
 echo "Checking for required dependencies..."

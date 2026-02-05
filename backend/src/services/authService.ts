@@ -33,7 +33,7 @@ export const register = async (
 
   // Generate a JWT token for the user
   const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
-    expiresIn: "2h", // Token expires in 24 hours
+    expiresIn: "2h",
   });
 
   return { user, token }; // Return the created user and token
@@ -57,7 +57,7 @@ export const login = async (email: string, password: string) => {
 
   // Generate a JWT token for the user
   const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
-    expiresIn: "2h", // Token expires in 24 hours
+    expiresIn: "2h",
   });
 
   return { user, token }; // Return the authenticated user and token
