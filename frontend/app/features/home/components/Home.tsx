@@ -15,9 +15,20 @@ import { Button } from "../../../shared/components/Button";
 export const Home: React.FC = () => {
   const navigate = useNavigate();
 
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+
+  const getNotesTotalValue = (notes: any[]) =>
+    notes.reduce((sum, note) => sum + Number(note.value ?? 0), 0);
+
   // State to store categories
   const [categories, setCategories] = useState<{ id: number; name: string }[]>(
-    []
+    [],
   );
 
   // State to store active notes
@@ -62,7 +73,7 @@ export const Home: React.FC = () => {
       // Update filtered notes if filtering is active
       if (isFiltering) {
         setFilteredActiveNotes((prev) =>
-          prev.filter((note) => note.id !== noteId)
+          prev.filter((note) => note.id !== noteId),
         );
       }
 
@@ -81,7 +92,7 @@ export const Home: React.FC = () => {
       // Update filtered notes if filtering is active
       if (isFiltering) {
         setFilteredActiveNotes((prev) =>
-          prev.filter((note) => note.id !== noteId)
+          prev.filter((note) => note.id !== noteId),
         );
       }
 
@@ -169,12 +180,19 @@ export const Home: React.FC = () => {
           {filterMessage && <p className="filter-message">{filterMessage}</p>}
 
           <h2>Filtered Notes</h2>
+          <div className="totals-box">
+            <strong>Total de la categoria:</strong>{" "}
+            {formatCurrency(getNotesTotalValue(filteredActiveNotes))}
+          </div>
           <div className="notes-list">
             {filteredActiveNotes.length > 0 ? (
               filteredActiveNotes.map((note) => (
                 <div key={note.id} className="note-card">
                   <h3>{note.title}</h3>
                   <p>{note.content}</p>
+                  <p className="note-value">
+                    {formatCurrency(Number(note.value ?? 0))}
+                  </p>
                   {/* Render categories associated with the note */}
                   {note.categories && note.categories.length > 0 && (
                     <div className="note-categories">
@@ -207,7 +225,9 @@ export const Home: React.FC = () => {
                 </div>
               ))
             ) : (
-              <p className="no-active">You don't have active notes in this category.</p>
+              <p className="no-active">
+                You don't have active notes in this category.
+              </p>
             )}
           </div>
         </>
@@ -215,12 +235,19 @@ export const Home: React.FC = () => {
         <>
           {/* Render active notes if no filter is applied */}
           <h2>Active Notes</h2>
+          <div className="totals-box">
+            <strong>Valor total de notas:</strong>{" "}
+            {formatCurrency(getNotesTotalValue(activeNotes))}
+          </div>
           <div className="notes-list">
             {activeNotes.length > 0 ? (
               activeNotes.map((note) => (
                 <div key={note.id} className="note-card">
                   <h3>{note.title}</h3>
                   <p>{note.content}</p>
+                  <p className="note-value">
+                    {formatCurrency(Number(note.value ?? 0))}
+                  </p>
                   {/* Render categories associated with the note */}
                   {note.categories && note.categories.length > 0 && (
                     <div className="note-categories">

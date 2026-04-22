@@ -7,11 +7,16 @@ import Category from "../models/categoryModel";
 // Controller to create a new note
 export const createNote = async (req: CustomRequest, res: Response) => {
   try {
-    const { title, content, categories } = req.body;
+    const { title, content, categories, value } = req.body;
     const userId = req.user!.id;
 
     // Create the note
-    const note = await Note.create({ title, content, userId });
+    const note = await Note.create({
+      title,
+      content,
+      userId,
+      value: typeof value === "number" ? value : 0,
+    });
 
     // Associate categories with the note if provided
     if (categories && Array.isArray(categories)) {
@@ -91,7 +96,7 @@ export const getArchivedNotes = async (req: CustomRequest, res: Response) => {
 export const updateNote = async (req: CustomRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { title, content, categories } = req.body;
+    const { title, content, categories, value } = req.body;
 
     // Find the note to update
     const note = await Note.findOne({
@@ -103,7 +108,11 @@ export const updateNote = async (req: CustomRequest, res: Response) => {
     }
 
     // Update the note's title and content
-    await note.update({ title, content });
+    await note.update({
+      title,
+      content,
+      ...(typeof value === "number" ? { value } : {}),
+    });
 
     // Update the note's categories if provided
     if (categories && Array.isArray(categories)) {
@@ -180,7 +189,7 @@ export const addCategoryToNote = async (req: CustomRequest, res: Response) => {
 // Controller to remove a category from a note
 export const removeCategoryFromNote = async (
   req: CustomRequest,
-  res: Response
+  res: Response,
 ) => {
   try {
     const { noteId, categoryId } = req.body;
@@ -202,18 +211,30 @@ export const getNotesByCategory = async (req: CustomRequest, res: Response) => {
     const userId = req.user!.id;
     const { categoryId } = req.params;
 
-    // Fetch notes associated with the specified category
+    // Fetch notes associated with the specified category, including all their categories
     const notes = await Note.findAll({
       where: { userId },
       include: [
         {
           model: Category,
+          through: { attributes: [] },
+          // First filter: find notes that have this specific category
           where: { id: categoryId },
+          required: true,
         },
       ],
     });
 
-    res.status(200).json(notes);
+    // Fetch all categories for each note (to include categories not in the filter)
+    const notesWithAllCategories = await Note.findAll({
+      where: {
+        userId,
+        id: notes.map((n) => n.id),
+      },
+      include: [Category],
+    });
+
+    res.status(200).json(notesWithAllCategories);
   } catch (error) {
     if (error instanceof Error && error.message === "Category not found") {
       return res.status(404).json({ message: "Category not found" });

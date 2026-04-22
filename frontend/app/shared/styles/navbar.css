@@ -1,8 +1,41 @@
 .navbar-container {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   width: 100%;
   background-color: #b3cee5;
   border-radius: 8px;
+}
+
+.scroll-controls {
+  position: fixed;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.scroll-btn {
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #324c65;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+.scroll-btn:hover {
+  background-color: #486683;
+}
+
+.nav-open .scroll-controls {
+  display: none;
 }
 
 .navbar {
@@ -21,7 +54,8 @@
   color: black;
 }
 
-.login-button, .logout-button {
+.login-button,
+.logout-button {
   padding: 0.5rem 1rem;
   border: none;
   cursor: pointer;
@@ -62,7 +96,7 @@
 }
 
 .side-nav a::after {
-  content: '';
+  content: "";
   display: block;
   width: 100%;
   height: 1px;
@@ -85,16 +119,17 @@
   display: none;
 }
 
-.login-button, .logout-button{
-    padding: 0.5rem 1rem;
-    background-color: #324c65;
-    border-radius: 5px;
-    text-decoration: none;
-    color: black;
-    font-size: 1rem;
+.login-button,
+.logout-button {
+  padding: 0.5rem 1rem;
+  background-color: #324c65;
+  border-radius: 5px;
+  text-decoration: none;
+  color: black;
+  font-size: 1rem;
 }
 
-.login{
+.login {
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -102,6 +137,10 @@
 }
 
 @media (min-width: 768px) {
+  .navbar-container {
+    border-radius: 8px;
+  }
+
   .burger-menu {
     display: none;
   }
@@ -118,5 +157,17 @@
 
   .side-nav {
     display: none;
+  }
+
+  .scroll-controls {
+    right: 1rem;
+    bottom: 1rem;
+    gap: 0.6rem;
+  }
+
+  .scroll-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 1.2rem;
   }
 }

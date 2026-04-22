@@ -20,7 +20,12 @@ export const EditNote: React.FC = () => {
   const { id } = useParams<{ id: string }>(); // Extract note ID from route parameters
   const [title, setTitle] = useState(""); // State for note title
   const [body, setBody] = useState(""); // State for note body
-  const [errors, setErrors] = useState<{ title?: string; body?: string }>({}); // State for form validation errors
+  const [value, setValue] = useState(""); // State for note value
+  const [errors, setErrors] = useState<{
+    title?: string;
+    body?: string;
+    value?: string;
+  }>({}); // State for form validation errors
   const [categories, setCategories] = useState<Category[]>([]); // All available categories
   const [noteCategories, setNoteCategories] = useState<Category[]>([]); // Categories assigned to the note
   const [tempNoteCategories, setTempNoteCategories] = useState<number[]>([]); // Temporary state for category changes
@@ -35,11 +40,12 @@ export const EditNote: React.FC = () => {
           const note = await getNoteById(parseInt(id)); // Fetch note details by ID
           setTitle(note.title); // Set note title
           setBody(note.content); // Set note body
+          setValue(String(note.value ?? 0)); // Set note value
 
           const noteCategoriesData = await getCategoriesByNote(parseInt(id)); // Fetch categories assigned to the note
           setNoteCategories(noteCategoriesData); // Set note categories
           setTempNoteCategories(
-            noteCategoriesData.map((cat: Category) => cat.id)
+            noteCategoriesData.map((cat: Category) => cat.id),
           ); // Initialize temporary category state
 
           const allCategories = await getCategories(); // Fetch all available categories
@@ -68,7 +74,7 @@ export const EditNote: React.FC = () => {
 
   // Validate form fields
   const validateFields = () => {
-    const newErrors: { title?: string; body?: string } = {};
+    const newErrors: { title?: string; body?: string; value?: string } = {};
 
     if (!title.trim()) {
       newErrors.title = "Title is required"; // Title is required
@@ -80,6 +86,13 @@ export const EditNote: React.FC = () => {
       newErrors.body = "Description is required"; // Body is required
     } else if (body.length > 600) {
       newErrors.body = "Description must not exceed 600 characters"; // Body length validation
+    }
+
+    if (value.trim()) {
+      const parsedValue = Number(value);
+      if (Number.isNaN(parsedValue) || parsedValue < 0) {
+        newErrors.value = "Value must be a valid non-negative number";
+      }
     }
 
     setErrors(newErrors); // Set validation errors
@@ -96,11 +109,18 @@ export const EditNote: React.FC = () => {
 
     try {
       if (id) {
-        await updateNote(parseInt(id), title, body, tempNoteCategories); // Update note details
+        const parsedValue = value.trim() ? Number(value) : 0;
+        await updateNote(
+          parseInt(id),
+          title,
+          body,
+          tempNoteCategories,
+          parsedValue,
+        ); // Update note details
 
         // Determine categories to add and remove
         const categoriesToAdd = tempNoteCategories.filter(
-          (catId) => !noteCategories.some((cat) => cat.id === catId)
+          (catId) => !noteCategories.some((cat) => cat.id === catId),
         );
         const categoriesToRemove = noteCategories
           .filter((cat) => !tempNoteCategories.includes(cat.id))
@@ -118,7 +138,7 @@ export const EditNote: React.FC = () => {
 
         // Update note categories state
         setNoteCategories(
-          categories.filter((cat) => tempNoteCategories.includes(cat.id))
+          categories.filter((cat) => tempNoteCategories.includes(cat.id)),
         );
         navigate("/home"); // Navigate back to home
       }
@@ -143,6 +163,18 @@ export const EditNote: React.FC = () => {
           maxLength={20}
         />
         {errors.title && <p className="error-text">{errors.title}</p>}
+
+        <Input
+          label="Value"
+          name="value"
+          type="number"
+          placeholder="Note value"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          min={0}
+          step="0.01"
+        />
+        {errors.value && <p className="error-text">{errors.value}</p>}
 
         {/* TextArea for note description */}
         <TextArea
@@ -198,12 +230,12 @@ export const EditNote: React.FC = () => {
                 {categories.length === 0 ? (
                   <p>You don't have any categories created.</p> // No categories available
                 ) : categories.filter(
-                    (cat) => !noteCategories.some((nc) => nc.id === cat.id)
+                    (cat) => !noteCategories.some((nc) => nc.id === cat.id),
                   ).length > 0 ? (
                   <div className="categories-list">
                     {categories
                       .filter(
-                        (cat) => !noteCategories.some((nc) => nc.id === cat.id)
+                        (cat) => !noteCategories.some((nc) => nc.id === cat.id),
                       )
                       .map((category) => (
                         <div key={category.id} className="category-item">

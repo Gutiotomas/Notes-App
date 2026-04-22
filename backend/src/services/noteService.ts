@@ -5,9 +5,10 @@ import Category from "../models/categoryModel";
 export const createNote = async (
   userId: number,
   title: string,
-  content: string
+  content: string,
+  value: number = 0,
 ) => {
-  return await Note.create({ userId, title, content, archived: false });
+  return await Note.create({ userId, title, content, value, archived: false });
 };
 
 // Retrieves all non-archived notes for a specific user
@@ -36,7 +37,7 @@ export const getArchivedNotes = async (userId: number) => {
 export const updateNote = async (
   userId: number,
   noteId: number,
-  updates: { title?: string; content?: string }
+  updates: { title?: string; content?: string; value?: number },
 ) => {
   const note = await Note.findOne({ where: { id: noteId, userId } });
   if (!note) throw new Error("Note not found");
@@ -72,7 +73,7 @@ export const addCategoryToNote = async (noteId: number, categoryId: number) => {
 // Removes a category from a specific note
 export const removeCategoryFromNote = async (
   noteId: number,
-  categoryId: number
+  categoryId: number,
 ) => {
   const note = await Note.findByPk(noteId);
   const category = await Category.findByPk(categoryId);
@@ -86,7 +87,7 @@ export const removeCategoryFromNote = async (
 // Retrieves all notes associated with a specific category for a specific user
 export const getNotesByCategory = async (
   userId: number,
-  categoryId: number
+  categoryId: number,
 ) => {
   const category = await Category.findByPk(categoryId, {
     include: [

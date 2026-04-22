@@ -31,6 +31,21 @@ export const Navbar: React.FC = () => {
     navigate("/"); // Redirect to the home page
   };
 
+  // Scroll smoothly to the top of the page
+  const scrollToTop = () => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  // Scroll smoothly to the bottom of the page
+  const scrollToBottom = () => {
+    if (typeof window !== "undefined") {
+      const documentHeight = document.documentElement.scrollHeight;
+      window.scrollTo({ top: documentHeight, behavior: "smooth" });
+    }
+  };
+
   return (
     <div className={`navbar-container ${isNavOpen ? "nav-open" : ""}`}>
       <div className="navbar">
@@ -139,6 +154,27 @@ export const Navbar: React.FC = () => {
           </ul>
         </div>
       )}
+
+      <div className="scroll-controls">
+        <button
+          type="button"
+          className="scroll-btn"
+          onClick={scrollToTop}
+          aria-label="Go to top"
+          title="Go to top"
+        >
+          ↑
+        </button>
+        <button
+          type="button"
+          className="scroll-btn"
+          onClick={scrollToBottom}
+          aria-label="Go to bottom"
+          title="Go to bottom"
+        >
+          ↓
+        </button>
+      </div>
     </div>
   );
 };

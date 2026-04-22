@@ -4,9 +4,9 @@ import { Request, Response, NextFunction } from "express";
 export const validateNote = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  const { title, content, archived } = req.body;
+  const { title, content, archived, value } = req.body;
 
   // Validate that 'title' exists and is a string
   if (!title || typeof title !== "string") {
@@ -27,6 +27,16 @@ export const validateNote = (
     return res
       .status(400)
       .json({ message: "Archived must be a boolean value." });
+  }
+
+  // Validate that 'value', if provided, is a valid non-negative number
+  if (
+    value !== undefined &&
+    (typeof value !== "number" || Number.isNaN(value) || value < 0)
+  ) {
+    return res.status(400).json({
+      message: "Value must be a valid non-negative number.",
+    });
   }
 
   // If all validations pass, proceed to the next middleware or route handler

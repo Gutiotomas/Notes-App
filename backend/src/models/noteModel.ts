@@ -47,6 +47,14 @@ export default class Note extends Model {
   })
   content!: string;
 
+  // Monetary value associated with the note
+  @Default(0)
+  @Column({
+    type: DataType.DECIMAL(12, 2),
+    allowNull: false,
+  })
+  value!: number;
+
   // Archived status of the note, default is false
   @Default(false)
   @Column({

@@ -15,9 +15,20 @@ import type { Category } from "~/features/home/utils/types";
 export const Archive: React.FC = () => {
   const navigate = useNavigate();
 
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+
+  const getNotesTotalValue = (notes: any[]) =>
+    notes.reduce((sum, note) => sum + Number(note.value ?? 0), 0);
+
   // State to store categories
   const [categories, setCategories] = useState<{ id: number; name: string }[]>(
-    []
+    [],
   );
 
   // State to store all archived notes
@@ -90,7 +101,7 @@ export const Archive: React.FC = () => {
       // Update filtered notes if filtering is active
       if (isFiltering) {
         setFilteredArchivedNotes((prev) =>
-          prev.filter((note) => note.id !== noteId)
+          prev.filter((note) => note.id !== noteId),
         );
       }
 
@@ -109,7 +120,7 @@ export const Archive: React.FC = () => {
       // Update filtered notes if filtering is active
       if (isFiltering) {
         setFilteredArchivedNotes((prev) =>
-          prev.filter((note) => note.id !== noteId)
+          prev.filter((note) => note.id !== noteId),
         );
       }
 
@@ -154,12 +165,19 @@ export const Archive: React.FC = () => {
           {filterMessage && <p className="filter-message">{filterMessage}</p>}
 
           <h2>Filtered Archived Notes</h2>
+          <div className="totals-box">
+            <strong>Total archivado de la categoria:</strong>{" "}
+            {formatCurrency(getNotesTotalValue(filteredArchivedNotes))}
+          </div>
           <div className="notes-list">
             {filteredArchivedNotes.length > 0 ? (
               filteredArchivedNotes.map((note) => (
                 <div key={note.id} className="note-card archived">
                   <h3>{note.title}</h3>
                   <p>{note.content}</p>
+                  <p className="note-value">
+                    {formatCurrency(Number(note.value ?? 0))}
+                  </p>
                   {note.categories && note.categories.length > 0 && (
                     <div className="note-categories">
                       <strong>Categories:</strong>
@@ -185,19 +203,28 @@ export const Archive: React.FC = () => {
                 </div>
               ))
             ) : (
-              <p className="no-archived">You don't have archived notes in this category.</p>
+              <p className="no-archived">
+                You don't have archived notes in this category.
+              </p>
             )}
           </div>
         </>
       ) : (
         <>
           <h2>Archived Notes</h2>
+          <div className="totals-box">
+            <strong>Valor total archivado:</strong>{" "}
+            {formatCurrency(getNotesTotalValue(archivedNotes))}
+          </div>
           <div className="notes-list">
             {archivedNotes.length > 0 ? (
               archivedNotes.map((note) => (
                 <div key={note.id} className="note-card archived">
                   <h3>{note.title}</h3>
                   <p>{note.content}</p>
+                  <p className="note-value">
+                    {formatCurrency(Number(note.value ?? 0))}
+                  </p>
                   {note.categories && note.categories.length > 0 && (
                     <div className="note-categories">
                       <strong>Categories:</strong>

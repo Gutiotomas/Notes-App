@@ -12,11 +12,16 @@ export const Note: React.FC = () => {
   // State variables for form fields, categories, and errors
   const [title, setTitle] = useState(""); // Note title
   const [body, setBody] = useState(""); // Note description
+  const [value, setValue] = useState(""); // Monetary value
   const [categories, setCategories] = useState<{ id: number; name: string }[]>(
-    []
+    [],
   ); // List of categories
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]); // Selected category IDs
-  const [errors, setErrors] = useState<{ title?: string; body?: string }>({}); // Validation errors
+  const [errors, setErrors] = useState<{
+    title?: string;
+    body?: string;
+    value?: string;
+  }>({}); // Validation errors
   const [isLoading, setIsLoading] = useState(true); // Loading state for categories
   const navigate = useNavigate(); // Navigation hook
 
@@ -41,19 +46,26 @@ export const Note: React.FC = () => {
       (prev) =>
         prev.includes(categoryId)
           ? prev.filter((id) => id !== categoryId) // Remove category if already selected
-          : [...prev, categoryId] // Add category if not selected
+          : [...prev, categoryId], // Add category if not selected
     );
   };
 
   // Validate form fields
   const validateFields = () => {
-    const newErrors: { title?: string; body?: string } = {};
+    const newErrors: { title?: string; body?: string; value?: string } = {};
 
     // Validate title
     if (!title.trim()) {
       newErrors.title = "Title is required";
     } else if (title.length > 20) {
       newErrors.title = "Title must not exceed 20 characters";
+    }
+
+    if (value.trim()) {
+      const parsedValue = Number(value);
+      if (Number.isNaN(parsedValue) || parsedValue < 0) {
+        newErrors.value = "Value must be a valid non-negative number";
+      }
     }
 
     setErrors(newErrors); // Set validation errors in state
@@ -69,7 +81,8 @@ export const Note: React.FC = () => {
     }
 
     try {
-      await createNote(title, body, selectedCategories); // Create note using the service
+      const parsedValue = value.trim() ? Number(value) : 0;
+      await createNote(title, body, selectedCategories, parsedValue); // Create note using the service
       navigate("/home"); // Navigate to the home page on success
     } catch (error) {
       console.error("Error creating note:", error); // Log any errors
@@ -92,6 +105,18 @@ export const Note: React.FC = () => {
           maxLength={20}
         />
         {errors.title && <p className="error-text">{errors.title}</p>}
+
+        <Input
+          label="Value"
+          type="number"
+          name="value"
+          placeholder="Enter value (optional)"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          min={0}
+          step="0.01"
+        />
+        {errors.value && <p className="error-text">{errors.value}</p>}
 
         {/* Text area for note description */}
         <TextArea

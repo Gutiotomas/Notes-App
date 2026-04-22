@@ -33,6 +33,15 @@
   background-color: #5a6268 !important;
 }
 
+.totals-box {
+  margin: 0.8rem 0 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  background-color: #eef6ff;
+  border: 1px solid #c8dff8;
+  font-size: 0.95rem;
+}
+
 .notes-list {
   display: flex;
   flex-direction: column;
@@ -66,6 +75,10 @@ p,
   display: flex;
   gap: 0.5rem;
   justify-content: space-evenly;
+}
+
+.note-value {
+  color: #1d4e89;
 }
 
 .unarchive-btn,

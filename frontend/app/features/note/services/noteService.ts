@@ -17,7 +17,7 @@ export const addCategoryToNote = async (noteId: number, categoryId: number) => {
 // Remove a category from a note
 export const removeCategoryFromNote = async (
   noteId: number,
-  categoryId: number
+  categoryId: number,
 ) => {
   const response = await fetch(`${API_URL}/notes/categories/remove`, {
     method: "POST",
@@ -48,7 +48,7 @@ export const getNotesByCategory = async (categoryId: number) => {
 
     if (!response.ok) {
       console.error(
-        `Failed to fetch notes by category: ${response.statusText}`
+        `Failed to fetch notes by category: ${response.statusText}`,
       );
       return [];
     }
@@ -70,7 +70,8 @@ export const getNotesByCategory = async (categoryId: number) => {
 export const createNote = async (
   title: string,
   content: string,
-  categories: number[] = []
+  categories: number[] = [],
+  value: number = 0,
 ) => {
   try {
     const token = localStorage.getItem("authToken");
@@ -84,7 +85,7 @@ export const createNote = async (
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ title, content, categories }),
+      body: JSON.stringify({ title, content, categories, value }),
     });
 
     if (!response.ok) {
@@ -103,7 +104,8 @@ export const updateNote = async (
   noteId: number,
   title: string,
   content: string,
-  categories: number[]
+  categories: number[],
+  value: number,
 ) => {
   try {
     const token = localStorage.getItem("authToken");
@@ -117,7 +119,7 @@ export const updateNote = async (
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ title, content, categories }),
+      body: JSON.stringify({ title, content, categories, value }),
     });
 
     if (!response.ok) {
