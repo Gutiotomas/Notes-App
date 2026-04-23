@@ -6,7 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev src/app.ts",
     "build": "tsc",
-    "start": "node dist/app.js",
+    "start": "npm run migrate && node dist/app.js",
     "sequelize": "sequelize --config sequelize-config.js",
     "migrate": "npx sequelize-cli db:migrate --config sequelize-config.js",
     "seed": "npx sequelize-cli db:seed:all --config sequelize-config.js"
@@ -34,6 +34,7 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.0",
     "sequelize": "^6.37.7",
+    "sequelize-cli": "^6.6.2",
     "sequelize-typescript": "^2.1.6",
     "snyk": "^1.1302.1"
   },
