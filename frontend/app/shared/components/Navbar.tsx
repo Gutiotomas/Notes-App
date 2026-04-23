@@ -11,6 +11,7 @@ export const Navbar: React.FC = () => {
   const location = useLocation(); // Hook to get the current route location
   const navigate = useNavigate(); // Hook to programmatically navigate between routes
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // State to track if the user is logged in
+  const [canScroll, setCanScroll] = useState<boolean>(false); // State to track if the page can scroll
 
   // Determine if the login button should be hidden based on the current route
   const hideLoginButton =
@@ -21,6 +22,31 @@ export const Navbar: React.FC = () => {
     if (typeof window !== "undefined" && getAuthToken()) {
       setIsLoggedIn(true);
     }
+  }, []);
+
+  // Show scroll controls only when the document is actually taller than the viewport
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const updateScrollState = () => {
+      const documentHeight = document.documentElement.scrollHeight;
+      const viewportHeight = window.innerHeight;
+      setCanScroll(documentHeight > viewportHeight + 8);
+    };
+
+    updateScrollState();
+
+    window.addEventListener("resize", updateScrollState);
+
+    const resizeObserver = new ResizeObserver(updateScrollState);
+    resizeObserver.observe(document.body);
+
+    return () => {
+      window.removeEventListener("resize", updateScrollState);
+      resizeObserver.disconnect();
+    };
   }, []);
 
   // Function to handle user logout
@@ -44,7 +70,11 @@ export const Navbar: React.FC = () => {
   const scrollToBottom = () => {
     if (typeof window !== "undefined") {
       const documentHeight = document.documentElement.scrollHeight;
-      window.scrollTo({ top: documentHeight, behavior: "smooth" });
+      const viewportHeight = window.innerHeight;
+      window.scrollTo({
+        top: documentHeight - viewportHeight,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -157,26 +187,28 @@ export const Navbar: React.FC = () => {
         </div>
       )}
 
-      <div className="scroll-controls">
-        <button
-          type="button"
-          className="scroll-btn"
-          onClick={scrollToTop}
-          aria-label="Go to top"
-          title="Go to top"
-        >
-          ↑
-        </button>
-        <button
-          type="button"
-          className="scroll-btn"
-          onClick={scrollToBottom}
-          aria-label="Go to bottom"
-          title="Go to bottom"
-        >
-          ↓
-        </button>
-      </div>
+      {canScroll && !isNavOpen && (
+        <div className="scroll-controls">
+          <button
+            type="button"
+            className="scroll-btn"
+            onClick={scrollToTop}
+            aria-label="Go to top"
+            title="Go to top"
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            className="scroll-btn"
+            onClick={scrollToBottom}
+            aria-label="Go to bottom"
+            title="Go to bottom"
+          >
+            ↓
+          </button>
+        </div>
+      )}
     </div>
   );
 };

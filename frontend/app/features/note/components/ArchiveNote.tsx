@@ -166,7 +166,7 @@ export const Archive: React.FC = () => {
 
           <h2>Filtered Archived Notes</h2>
           <div className="totals-box">
-            <strong>Total archivado de la categoria:</strong>{" "}
+            <strong>Total archived category value:</strong>{" "}
             {formatCurrency(getNotesTotalValue(filteredArchivedNotes))}
           </div>
           <div className="notes-list">
@@ -213,7 +213,7 @@ export const Archive: React.FC = () => {
         <>
           <h2>Archived Notes</h2>
           <div className="totals-box">
-            <strong>Valor total archivado:</strong>{" "}
+            <strong>Total archived value:</strong>{" "}
             {formatCurrency(getNotesTotalValue(archivedNotes))}
           </div>
           <div className="notes-list">

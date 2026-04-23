@@ -88,38 +88,45 @@ export const Login: React.FC = () => {
       {/* Page title */}
       <h1 className="auth-title">Login</h1>
 
-      {/* Email input field */}
-      <Input
-        label="Email"
-        type="email"
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        placeholder="example@example.com"
-        required={true}
-        maxLength={50}
-      />
-      {/* Display email validation error */}
-      {errors.email && <p className="error-text">{errors.email}</p>}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleLogin();
+        }}
+      >
+        {/* Email input field */}
+        <Input
+          label="Email"
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="example@example.com"
+          required={true}
+          maxLength={50}
+        />
+        {/* Display email validation error */}
+        {errors.email && <p className="error-text">{errors.email}</p>}
 
-      {/* Password input field */}
-      <Input
-        label="Password"
-        type="password"
-        name="password"
-        value={formData.password}
-        onChange={handleChange}
-        placeholder="Enter at least 8 characters"
-        required={true}
-        maxLength={20}
-      />
-      {/* Display password validation error */}
-      {errors.password && <p className="error-text">{errors.password}</p>}
+        {/* Password input field */}
+        <Input
+          label="Password"
+          type="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          placeholder="Enter at least 8 characters"
+          required={true}
+          maxLength={20}
+        />
+        {/* Display password validation error */}
+        {errors.password && <p className="error-text">{errors.password}</p>}
 
-      {/* Login button */}
-      <div className="button-container">
-        <Button text="Login" onClick={handleLogin} className="auth-button" />
-      </div>
+        {/* Login button */}
+        <div className="button-container">
+          <Button text="Login" type="submit" className="auth-button" />
+        </div>
+      </form>
 
       {/* Link to the registration page */}
       <p className="auth-link-container">

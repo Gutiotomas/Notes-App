@@ -181,7 +181,7 @@ export const Home: React.FC = () => {
 
           <h2>Filtered Notes</h2>
           <div className="totals-box">
-            <strong>Total de la categoria:</strong>{" "}
+            <strong>Total category value:</strong>{" "}
             {formatCurrency(getNotesTotalValue(filteredActiveNotes))}
           </div>
           <div className="notes-list">
@@ -236,7 +236,7 @@ export const Home: React.FC = () => {
           {/* Render active notes if no filter is applied */}
           <h2>Active Notes</h2>
           <div className="totals-box">
-            <strong>Valor total de notas:</strong>{" "}
+            <strong>Total notes value:</strong>{" "}
             {formatCurrency(getNotesTotalValue(activeNotes))}
           </div>
           <div className="notes-list">

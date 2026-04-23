@@ -78,7 +78,7 @@ export const Register: React.FC = () => {
         const token = await registerUser(
           formData.name,
           formData.email,
-          formData.password
+          formData.password,
         );
 
         // If registration is successful, store the token and navigate to the home page
@@ -110,53 +110,56 @@ export const Register: React.FC = () => {
       {/* Registration form title */}
       <h1 className="auth-title">Register</h1>
 
-      {/* Input for name */}
-      <Input
-        label="Name"
-        type="text"
-        name="name"
-        value={formData.name}
-        onChange={handleChange}
-        placeholder="Enter your full name"
-        required={true}
-        maxLength={50}
-      />
-      {errors.name && <p className="error-text">{errors.name}</p>}
-
-      {/* Input for email */}
-      <Input
-        label="Email"
-        type="email"
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        placeholder="example@example.com"
-        required={true}
-        maxLength={50}
-      />
-      {errors.email && <p className="error-text">{errors.email}</p>}
-
-      {/* Input for password */}
-      <Input
-        label="Password"
-        type="password"
-        name="password"
-        value={formData.password}
-        onChange={handleChange}
-        placeholder="Enter at least 8 characters"
-        required={true}
-        maxLength={20}
-      />
-      {errors.password && <p className="error-text">{errors.password}</p>}
-
-      {/* Button to submit the registration form */}
-      <div className="button-container">
-        <Button
-          text="Register"
-          onClick={handleRegister}
-          className="auth-button"
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleRegister();
+        }}
+      >
+        {/* Input for name */}
+        <Input
+          label="Name"
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          placeholder="Enter your full name"
+          required={true}
+          maxLength={50}
         />
-      </div>
+        {errors.name && <p className="error-text">{errors.name}</p>}
+
+        {/* Input for email */}
+        <Input
+          label="Email"
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="example@example.com"
+          required={true}
+          maxLength={50}
+        />
+        {errors.email && <p className="error-text">{errors.email}</p>}
+
+        {/* Input for password */}
+        <Input
+          label="Password"
+          type="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          placeholder="Enter at least 8 characters"
+          required={true}
+          maxLength={20}
+        />
+        {errors.password && <p className="error-text">{errors.password}</p>}
+
+        {/* Button to submit the registration form */}
+        <div className="button-container">
+          <Button text="Register" type="submit" className="auth-button" />
+        </div>
+      </form>
 
       {/* Link to navigate to the login page */}
       <p className="auth-link-container">
