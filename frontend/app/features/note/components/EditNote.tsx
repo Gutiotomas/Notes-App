@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "../styles/edit.css";
 import {
   updateNote,
@@ -16,8 +16,11 @@ import { Button } from "~/shared/components/Button";
 import { TextArea } from "~/shared/components/TextArea";
 import type { Category } from "../../home/utils/types";
 
-export const EditNote: React.FC = () => {
-  const { id } = useParams<{ id: string }>(); // Extract note ID from route parameters
+type EditNoteProps = {
+  id?: string;
+};
+
+export const EditNote: React.FC<EditNoteProps> = ({ id }) => {
   const [title, setTitle] = useState(""); // State for note title
   const [body, setBody] = useState(""); // State for note body
   const [value, setValue] = useState(""); // State for note value

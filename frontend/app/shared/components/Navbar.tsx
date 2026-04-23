@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { RxHamburgerMenu } from "react-icons/rx";
 import "../styles/navbar.css";
 import { Button } from "./Button";
+import { getAuthToken } from "../utils/tokenService";
 
 // Navbar component: Handles navigation and user session state
 export const Navbar: React.FC = () => {
@@ -17,7 +18,7 @@ export const Navbar: React.FC = () => {
 
   // Effect to check if the user is logged in by verifying the presence of an auth token in localStorage
   useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem("authToken")) {
+    if (typeof window !== "undefined" && getAuthToken()) {
       setIsLoggedIn(true);
     }
   }, []);
@@ -26,6 +27,7 @@ export const Navbar: React.FC = () => {
   const handleLogout = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("authToken"); // Remove the auth token from localStorage
+      localStorage.removeItem("token");
     }
     setIsLoggedIn(false); // Update the logged-in state
     navigate("/"); // Redirect to the home page

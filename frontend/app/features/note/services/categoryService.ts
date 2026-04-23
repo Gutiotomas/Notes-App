@@ -1,10 +1,12 @@
 // Base API URL for the backend server
 const API_URL = import.meta.env.VITE_API_URL;
+const getStoredAuthToken = () =>
+  localStorage.getItem("authToken") || localStorage.getItem("token");
 
 // Fetch all categories
 export const getCategories = async () => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = getStoredAuthToken();
     if (!token) {
       throw new Error("No auth token found");
     }
@@ -31,7 +33,7 @@ export const getCategories = async () => {
 // Create a new category
 export const createCategory = async (name: string) => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = getStoredAuthToken();
     if (!token) {
       throw new Error("No auth token found");
     }
@@ -59,7 +61,7 @@ export const createCategory = async (name: string) => {
 // Update an existing category
 export const updateCategory = async (categoryId: number, name: string) => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = getStoredAuthToken();
     if (!token) {
       throw new Error("No auth token found");
     }
@@ -87,7 +89,7 @@ export const updateCategory = async (categoryId: number, name: string) => {
 // Delete a category
 export const deleteCategory = async (categoryId: number) => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = getStoredAuthToken();
     if (!token) {
       throw new Error("No auth token found");
     }
@@ -114,7 +116,7 @@ export const deleteCategory = async (categoryId: number) => {
 // Fetch categories not associated with a specific note
 export const getCategoriesNotInNote = async (noteId: number) => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = getStoredAuthToken();
     if (!token) {
       throw new Error("No auth token found");
     }
@@ -146,7 +148,7 @@ export const getCategoriesNotInNote = async (noteId: number) => {
 // Fetch categories associated with a specific note
 export const getCategoriesByNote = async (noteId: number) => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = getStoredAuthToken();
     if (!token) {
       throw new Error("No auth token found");
     }

@@ -1,5 +1,7 @@
 // Base API URL for the backend server
 const API_URL = import.meta.env.VITE_API_URL;
+const getStoredAuthToken = () =>
+  localStorage.getItem("authToken") || localStorage.getItem("token");
 
 // Add a category to a note
 export const addCategoryToNote = async (noteId: number, categoryId: number) => {
@@ -7,7 +9,7 @@ export const addCategoryToNote = async (noteId: number, categoryId: number) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+      Authorization: `Bearer ${getStoredAuthToken()}`,
     },
     body: JSON.stringify({ noteId, categoryId }),
   });
@@ -23,7 +25,7 @@ export const removeCategoryFromNote = async (
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+      Authorization: `Bearer ${getStoredAuthToken()}`,
     },
     body: JSON.stringify({ noteId, categoryId }),
   });
@@ -37,7 +39,7 @@ export const getNotesByCategory = async (categoryId: number) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        Authorization: `Bearer ${getStoredAuthToken()}`,
       },
     });
 
@@ -74,7 +76,7 @@ export const createNote = async (
   value: number = 0,
 ) => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = getStoredAuthToken();
     if (!token) {
       throw new Error("No auth token found");
     }
@@ -108,7 +110,7 @@ export const updateNote = async (
   value: number,
 ) => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = getStoredAuthToken();
     if (!token) {
       throw new Error("No auth token found");
     }
@@ -136,7 +138,7 @@ export const updateNote = async (
 // Fetch all notes
 export const getAllNotes = async () => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = getStoredAuthToken();
     if (!token) {
       throw new Error("No auth token found");
     }
@@ -163,7 +165,7 @@ export const getAllNotes = async () => {
 // Archive a note
 export const archiveNote = async (noteId: number) => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = getStoredAuthToken();
     if (!token) {
       throw new Error("No auth token found");
     }
@@ -190,7 +192,7 @@ export const archiveNote = async (noteId: number) => {
 // Unarchive a note
 export const unarchiveNote = async (noteId: number) => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = getStoredAuthToken();
     if (!token) {
       throw new Error("No auth token found");
     }
@@ -217,7 +219,7 @@ export const unarchiveNote = async (noteId: number) => {
 // Delete a note
 export const deleteNote = async (noteId: number) => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = getStoredAuthToken();
     if (!token) {
       throw new Error("No auth token found");
     }
@@ -244,7 +246,7 @@ export const deleteNote = async (noteId: number) => {
 // Fetch a note by its ID
 export const getNoteById = async (noteId: number) => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = getStoredAuthToken();
     if (!token) {
       throw new Error("No auth token found");
     }
@@ -271,7 +273,7 @@ export const getNoteById = async (noteId: number) => {
 // Fetch all archived notes
 export const getArchivedNotes = async () => {
   try {
-    const token = localStorage.getItem("authToken");
+    const token = getStoredAuthToken();
     if (!token) {
       throw new Error("No auth token found");
     }

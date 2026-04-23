@@ -1,13 +1,18 @@
 import { jwtDecode } from "jwt-decode";
 
 // Function to retrieve the authentication token from localStorage
+const getStoredAuthToken = (): string | null => {
+  return localStorage.getItem("authToken") || localStorage.getItem("token");
+};
+
+// Function to retrieve the authentication token from localStorage
 export const getAuthToken = (): string | null => {
-  return localStorage.getItem("token");
+  return getStoredAuthToken();
 };
 
 // Function to extract the user ID from the authentication token
 export const getUserIdFromToken = (): number | null => {
-  const token = localStorage.getItem("token"); // Retrieve the token from localStorage
+  const token = getStoredAuthToken(); // Retrieve the token from localStorage
   if (!token) return null; // Return null if no token is found
 
   try {
