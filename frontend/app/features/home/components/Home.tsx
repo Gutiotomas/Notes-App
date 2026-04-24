@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/home.css";
 import {
   getNotesByCategory,
@@ -14,6 +14,8 @@ import { Button } from "../../../shared/components/Button";
 // Home component: Displays the main page with notes and categories
 export const Home: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const lastFocusedNoteIdRef = useRef<number | null>(null);
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("es-AR", {
@@ -64,6 +66,33 @@ export const Home: React.FC = () => {
     fetchCategories();
     fetchNotes();
   }, []);
+
+  // Restore viewport focus to the edited note when returning from edit page
+  useEffect(() => {
+    const focusNoteId = (location.state as { focusNoteId?: number } | null)
+      ?.focusNoteId;
+
+    if (!focusNoteId) {
+      lastFocusedNoteIdRef.current = null;
+      return;
+    }
+
+    if (lastFocusedNoteIdRef.current === focusNoteId) {
+      return;
+    }
+
+    const noteElement = document.getElementById(`note-card-${focusNoteId}`);
+    if (!noteElement) {
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      noteElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      lastFocusedNoteIdRef.current = focusNoteId;
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [location.state, activeNotes, filteredActiveNotes, isFiltering]);
 
   // Archive a note and update the state
   const handleArchiveNote = async (noteId: number) => {
@@ -187,7 +216,11 @@ export const Home: React.FC = () => {
           <div className="notes-list">
             {filteredActiveNotes.length > 0 ? (
               filteredActiveNotes.map((note) => (
-                <div key={note.id} className="note-card">
+                <div
+                  id={`note-card-${note.id}`}
+                  key={note.id}
+                  className="note-card"
+                >
                   <h3>{note.title}</h3>
                   <p>{note.content}</p>
                   <p className="note-value">
@@ -208,7 +241,14 @@ export const Home: React.FC = () => {
                     {/* Buttons for editing, archiving, and deleting the note */}
                     <Button
                       text="Edit"
-                      onClick={() => navigate(`/edit/${note.id}`)}
+                      onClick={() =>
+                        navigate(`/edit/${note.id}`, {
+                          state: {
+                            from: location.pathname,
+                            focusNoteId: note.id,
+                          },
+                        })
+                      }
                       className="edit-btn"
                     />
                     <Button
@@ -242,7 +282,11 @@ export const Home: React.FC = () => {
           <div className="notes-list">
             {activeNotes.length > 0 ? (
               activeNotes.map((note) => (
-                <div key={note.id} className="note-card">
+                <div
+                  id={`note-card-${note.id}`}
+                  key={note.id}
+                  className="note-card"
+                >
                   <h3>{note.title}</h3>
                   <p>{note.content}</p>
                   <p className="note-value">
@@ -263,7 +307,14 @@ export const Home: React.FC = () => {
                     {/* Buttons for editing, archiving, and deleting the note */}
                     <Button
                       text="Edit"
-                      onClick={() => navigate(`/edit/${note.id}`)}
+                      onClick={() =>
+                        navigate(`/edit/${note.id}`, {
+                          state: {
+                            from: location.pathname,
+                            focusNoteId: note.id,
+                          },
+                        })
+                      }
                       className="edit-btn"
                     />
                     <Button

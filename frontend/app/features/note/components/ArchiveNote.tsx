@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "~/shared/components/Button";
 import {
   getArchivedNotes,
@@ -14,6 +14,8 @@ import type { Category } from "~/features/home/utils/types";
 // Archive component to manage and display archived notes
 export const Archive: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const lastFocusedNoteIdRef = useRef<number | null>(null);
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("es-AR", {
@@ -63,6 +65,33 @@ export const Archive: React.FC = () => {
     fetchCategories();
     fetchArchivedNotes();
   }, []);
+
+  // Restore viewport focus to the edited note when returning from edit page
+  useEffect(() => {
+    const focusNoteId = (location.state as { focusNoteId?: number } | null)
+      ?.focusNoteId;
+
+    if (!focusNoteId) {
+      lastFocusedNoteIdRef.current = null;
+      return;
+    }
+
+    if (lastFocusedNoteIdRef.current === focusNoteId) {
+      return;
+    }
+
+    const noteElement = document.getElementById(`note-card-${focusNoteId}`);
+    if (!noteElement) {
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      noteElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      lastFocusedNoteIdRef.current = focusNoteId;
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [location.state, archivedNotes, filteredArchivedNotes, isFiltering]);
 
   // Filter notes by category
   const handleFilterByCategory = async (categoryId: number) => {
@@ -172,7 +201,11 @@ export const Archive: React.FC = () => {
           <div className="notes-list">
             {filteredArchivedNotes.length > 0 ? (
               filteredArchivedNotes.map((note) => (
-                <div key={note.id} className="note-card archived">
+                <div
+                  id={`note-card-${note.id}`}
+                  key={note.id}
+                  className="note-card archived"
+                >
                   <h3>{note.title}</h3>
                   <p>{note.content}</p>
                   <p className="note-value">
@@ -189,6 +222,18 @@ export const Archive: React.FC = () => {
                     </div>
                   )}
                   <div className="note-actions">
+                    <Button
+                      text="Edit"
+                      onClick={() =>
+                        navigate(`/edit/${note.id}`, {
+                          state: {
+                            from: location.pathname,
+                            focusNoteId: note.id,
+                          },
+                        })
+                      }
+                      className="edit-btn"
+                    />
                     <Button
                       text="Unarchive"
                       onClick={() => handleUnarchiveNote(note.id)}
@@ -219,7 +264,11 @@ export const Archive: React.FC = () => {
           <div className="notes-list">
             {archivedNotes.length > 0 ? (
               archivedNotes.map((note) => (
-                <div key={note.id} className="note-card archived">
+                <div
+                  id={`note-card-${note.id}`}
+                  key={note.id}
+                  className="note-card archived"
+                >
                   <h3>{note.title}</h3>
                   <p>{note.content}</p>
                   <p className="note-value">
@@ -236,6 +285,18 @@ export const Archive: React.FC = () => {
                     </div>
                   )}
                   <div className="note-actions">
+                    <Button
+                      text="Edit"
+                      onClick={() =>
+                        navigate(`/edit/${note.id}`, {
+                          state: {
+                            from: location.pathname,
+                            focusNoteId: note.id,
+                          },
+                        })
+                      }
+                      className="edit-btn"
+                    />
                     <Button
                       text="Unarchive"
                       onClick={() => handleUnarchiveNote(note.id)}

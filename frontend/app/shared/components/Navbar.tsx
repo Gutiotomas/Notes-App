@@ -12,6 +12,7 @@ export const Navbar: React.FC = () => {
   const navigate = useNavigate(); // Hook to programmatically navigate between routes
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // State to track if the user is logged in
   const [canScroll, setCanScroll] = useState<boolean>(false); // State to track if the page can scroll
+  const [isScrolled, setIsScrolled] = useState<boolean>(false); // State to track if the user has started scrolling
 
   // Determine if the login button should be hidden based on the current route
   const hideLoginButton =
@@ -49,6 +50,24 @@ export const Navbar: React.FC = () => {
     };
   }, []);
 
+  // Track whether the page is currently scrolled to soften sticky navbar appearance
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 8);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   // Function to handle user logout
   const handleLogout = () => {
     if (typeof window !== "undefined") {
@@ -79,7 +98,11 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <div className={`navbar-container ${isNavOpen ? "nav-open" : ""}`}>
+    <div
+      className={`navbar-container ${isNavOpen ? "nav-open" : ""} ${
+        isScrolled ? "is-scrolled" : ""
+      }`}
+    >
       <div className="navbar">
         {/* Hamburger menu button to toggle the navigation menu */}
         <button

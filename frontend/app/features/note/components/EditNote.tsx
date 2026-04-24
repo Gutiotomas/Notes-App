@@ -18,9 +18,15 @@ import type { Category } from "../../home/utils/types";
 
 type EditNoteProps = {
   id?: string;
+  returnTo?: string;
+  focusNoteId?: number;
 };
 
-export const EditNote: React.FC<EditNoteProps> = ({ id }) => {
+export const EditNote: React.FC<EditNoteProps> = ({
+  id,
+  returnTo,
+  focusNoteId,
+}) => {
   const [title, setTitle] = useState(""); // State for note title
   const [body, setBody] = useState(""); // State for note body
   const [value, setValue] = useState(""); // State for note value
@@ -143,7 +149,13 @@ export const EditNote: React.FC<EditNoteProps> = ({ id }) => {
         setNoteCategories(
           categories.filter((cat) => tempNoteCategories.includes(cat.id)),
         );
-        navigate("/home"); // Navigate back to home
+
+        const parsedId = parseInt(id);
+        navigate(returnTo || "/home", {
+          state: {
+            focusNoteId: focusNoteId ?? parsedId,
+          },
+        });
       }
     } catch (error) {
       console.error("Error updating note:", error); // Log errors
