@@ -74,6 +74,7 @@ export const createNote = async (
   content: string,
   categories: number[] = [],
   value: number = 0,
+  installments?: number | null,
 ) => {
   try {
     const token = getStoredAuthToken();
@@ -87,7 +88,13 @@ export const createNote = async (
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ title, content, categories, value }),
+      body: JSON.stringify({
+        title,
+        content,
+        categories,
+        value,
+        installments: installments ?? null,
+      }),
     });
 
     if (!response.ok) {
@@ -108,6 +115,7 @@ export const updateNote = async (
   content: string,
   categories: number[],
   value: number,
+  installments?: number | null,
 ) => {
   try {
     const token = getStoredAuthToken();
@@ -121,7 +129,13 @@ export const updateNote = async (
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ title, content, categories, value }),
+      body: JSON.stringify({
+        title,
+        content,
+        categories,
+        value,
+        installments: installments ?? null,
+      }),
     });
 
     if (!response.ok) {

@@ -13,6 +13,7 @@ export const Note: React.FC = () => {
   const [title, setTitle] = useState(""); // Note title
   const [body, setBody] = useState(""); // Note description
   const [value, setValue] = useState(""); // Monetary value
+  const [installments, setInstallments] = useState(""); // Optional number of installments
   const [categories, setCategories] = useState<{ id: number; name: string }[]>(
     [],
   ); // List of categories
@@ -21,6 +22,7 @@ export const Note: React.FC = () => {
     title?: string;
     body?: string;
     value?: string;
+    installments?: string;
   }>({}); // Validation errors
   const [isLoading, setIsLoading] = useState(true); // Loading state for categories
   const navigate = useNavigate(); // Navigation hook
@@ -52,7 +54,12 @@ export const Note: React.FC = () => {
 
   // Validate form fields
   const validateFields = () => {
-    const newErrors: { title?: string; body?: string; value?: string } = {};
+    const newErrors: {
+      title?: string;
+      body?: string;
+      value?: string;
+      installments?: string;
+    } = {};
 
     // Validate title
     if (!title.trim()) {
@@ -65,6 +72,17 @@ export const Note: React.FC = () => {
       const parsedValue = Number(value);
       if (Number.isNaN(parsedValue) || parsedValue < 0) {
         newErrors.value = "Value must be a valid non-negative number";
+      }
+    }
+
+    if (installments.trim()) {
+      const parsedInstallments = Number(installments);
+      if (
+        Number.isNaN(parsedInstallments) ||
+        !Number.isInteger(parsedInstallments) ||
+        parsedInstallments < 1
+      ) {
+        newErrors.installments = "Installments must be a positive whole number";
       }
     }
 
@@ -82,7 +100,16 @@ export const Note: React.FC = () => {
 
     try {
       const parsedValue = value.trim() ? Number(value) : 0;
-      await createNote(title, body, selectedCategories, parsedValue); // Create note using the service
+      const parsedInstallments = installments.trim()
+        ? Number(installments)
+        : null;
+      await createNote(
+        title,
+        body,
+        selectedCategories,
+        parsedValue,
+        parsedInstallments,
+      ); // Create note using the service
       navigate("/home"); // Navigate to the home page on success
     } catch (error) {
       console.error("Error creating note:", error); // Log any errors
@@ -117,6 +144,20 @@ export const Note: React.FC = () => {
           step="0.01"
         />
         {errors.value && <p className="error-text">{errors.value}</p>}
+
+        <Input
+          label="Installments"
+          type="number"
+          name="installments"
+          placeholder="Enter installments (optional)"
+          value={installments}
+          onChange={(e) => setInstallments(e.target.value)}
+          min={1}
+          step="1"
+        />
+        {errors.installments && (
+          <p className="error-text">{errors.installments}</p>
+        )}
 
         {/* Text area for note description */}
         <TextArea

@@ -24,8 +24,31 @@ export const Archive: React.FC = () => {
       maximumFractionDigits: 0,
     }).format(amount);
 
+  const getInstallmentAmount = (note: any) => {
+    const installments = Number(note.installments ?? 0);
+    const value = Number(note.value ?? 0);
+
+    if (installments < 2) {
+      return null;
+    }
+
+    return value / installments;
+  };
+
   const getNotesTotalValue = (notes: any[]) =>
     notes.reduce((sum, note) => sum + Number(note.value ?? 0), 0);
+
+  const getNotesMonthlyTotal = (notes: any[]) =>
+    notes.reduce((sum, note) => {
+      const installments = Number(note.installments ?? 0);
+      const value = Number(note.value ?? 0);
+
+      if (installments > 1) {
+        return sum + value / installments;
+      }
+
+      return sum + value;
+    }, 0);
 
   // State to store categories
   const [categories, setCategories] = useState<{ id: number; name: string }[]>(
@@ -220,6 +243,9 @@ export const Archive: React.FC = () => {
           <div className="totals-box">
             <strong>Total archived category value:</strong>{" "}
             {formatCurrency(getNotesTotalValue(displayedArchivedNotes))}
+            <br />
+            <strong>Total monthly (filtered):</strong>{" "}
+            {formatCurrency(getNotesMonthlyTotal(displayedArchivedNotes))}
           </div>
           <div className="notes-list">
             {displayedArchivedNotes.length > 0 ? (
@@ -234,6 +260,12 @@ export const Archive: React.FC = () => {
                   <p className="note-value">
                     {formatCurrency(Number(note.value ?? 0))}
                   </p>
+                  {Number(note.installments ?? 0) > 1 && (
+                    <p className="note-installments">
+                      Installments: {Number(note.installments)} | Monthly
+                      payment: {formatCurrency(getInstallmentAmount(note) ?? 0)}
+                    </p>
+                  )}
                   {note.categories && note.categories.length > 0 && (
                     <div className="note-categories">
                       <strong>Categories:</strong>
@@ -283,6 +315,9 @@ export const Archive: React.FC = () => {
           <div className="totals-box">
             <strong>Total archived value:</strong>{" "}
             {formatCurrency(getNotesTotalValue(displayedArchivedNotes))}
+            <br />
+            <strong>Total monthly:</strong>{" "}
+            {formatCurrency(getNotesMonthlyTotal(displayedArchivedNotes))}
           </div>
           <div className="notes-list">
             {displayedArchivedNotes.length > 0 ? (
@@ -297,6 +332,12 @@ export const Archive: React.FC = () => {
                   <p className="note-value">
                     {formatCurrency(Number(note.value ?? 0))}
                   </p>
+                  {Number(note.installments ?? 0) > 1 && (
+                    <p className="note-installments">
+                      Installments: {Number(note.installments)} | Monthly
+                      payment: {formatCurrency(getInstallmentAmount(note) ?? 0)}
+                    </p>
+                  )}
                   {note.categories && note.categories.length > 0 && (
                     <div className="note-categories">
                       <strong>Categories:</strong>

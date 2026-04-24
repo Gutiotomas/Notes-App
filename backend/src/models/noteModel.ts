@@ -55,6 +55,13 @@ export default class Note extends Model {
   })
   value!: number;
 
+  // Optional number of installments for the note value
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  installments?: number | null;
+
   // Archived status of the note, default is false
   @Default(false)
   @Column({

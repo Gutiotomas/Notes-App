@@ -7,7 +7,7 @@ import Category from "../models/categoryModel";
 // Controller to create a new note
 export const createNote = async (req: CustomRequest, res: Response) => {
   try {
-    const { title, content, categories, value } = req.body;
+    const { title, content, categories, value, installments } = req.body;
     const userId = req.user!.id;
 
     // Create the note
@@ -16,6 +16,10 @@ export const createNote = async (req: CustomRequest, res: Response) => {
       content,
       userId,
       value: typeof value === "number" ? value : 0,
+      installments:
+        Number.isInteger(installments) && installments >= 1
+          ? installments
+          : null,
     });
 
     // Associate categories with the note if provided
@@ -96,7 +100,7 @@ export const getArchivedNotes = async (req: CustomRequest, res: Response) => {
 export const updateNote = async (req: CustomRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { title, content, categories, value } = req.body;
+    const { title, content, categories, value, installments } = req.body;
 
     // Find the note to update
     const note = await Note.findOne({
@@ -112,6 +116,11 @@ export const updateNote = async (req: CustomRequest, res: Response) => {
       title,
       content,
       ...(typeof value === "number" ? { value } : {}),
+      ...(Number.isInteger(installments) && installments >= 1
+        ? { installments }
+        : installments === null
+          ? { installments: null }
+          : {}),
     });
 
     // Update the note's categories if provided

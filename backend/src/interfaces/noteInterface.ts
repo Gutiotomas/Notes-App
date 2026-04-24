@@ -3,6 +3,7 @@ export interface NoteAttributes {
   title: string;
   content: string;
   value: number;
+  installments?: number | null;
   isArchived: boolean;
   userId: number;
 }

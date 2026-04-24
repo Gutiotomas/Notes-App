@@ -24,8 +24,31 @@ export const Home: React.FC = () => {
       maximumFractionDigits: 0,
     }).format(amount);
 
+  const getInstallmentAmount = (note: any) => {
+    const installments = Number(note.installments ?? 0);
+    const value = Number(note.value ?? 0);
+
+    if (installments < 2) {
+      return null;
+    }
+
+    return value / installments;
+  };
+
   const getNotesTotalValue = (notes: any[]) =>
     notes.reduce((sum, note) => sum + Number(note.value ?? 0), 0);
+
+  const getNotesMonthlyTotal = (notes: any[]) =>
+    notes.reduce((sum, note) => {
+      const installments = Number(note.installments ?? 0);
+      const value = Number(note.value ?? 0);
+
+      if (installments > 1) {
+        return sum + value / installments;
+      }
+
+      return sum + value;
+    }, 0);
 
   // State to store categories
   const [categories, setCategories] = useState<{ id: number; name: string }[]>(
@@ -233,8 +256,11 @@ export const Home: React.FC = () => {
         <>
           <h2>Filtered Notes</h2>
           <div className="totals-box">
-            <strong>Total category value:</strong>{" "}
+            <strong>Total value:</strong>{" "}
             {formatCurrency(getNotesTotalValue(displayedNotes))}
+            <br />
+            <strong>Total monthly:</strong>{" "}
+            {formatCurrency(getNotesMonthlyTotal(displayedNotes))}
           </div>
           <div className="notes-list">
             {displayedNotes.length > 0 ? (
@@ -249,6 +275,12 @@ export const Home: React.FC = () => {
                   <p className="note-value">
                     {formatCurrency(Number(note.value ?? 0))}
                   </p>
+                  {Number(note.installments ?? 0) > 1 && (
+                    <p className="note-installments">
+                      Installments: {Number(note.installments)} | Monthly
+                      payment: {formatCurrency(getInstallmentAmount(note) ?? 0)}
+                    </p>
+                  )}
                   {/* Render categories associated with the note */}
                   {note.categories && note.categories.length > 0 && (
                     <div className="note-categories">
@@ -298,8 +330,11 @@ export const Home: React.FC = () => {
         <>
           <h2>Active Notes</h2>
           <div className="totals-box">
-            <strong>Total notes value:</strong>{" "}
+            <strong>Total value:</strong>{" "}
             {formatCurrency(getNotesTotalValue(displayedNotes))}
+            <br />
+            <strong>Total monthly:</strong>{" "}
+            {formatCurrency(getNotesMonthlyTotal(displayedNotes))}
           </div>
           <div className="notes-list">
             {displayedNotes.length > 0 ? (
@@ -314,6 +349,12 @@ export const Home: React.FC = () => {
                   <p className="note-value">
                     {formatCurrency(Number(note.value ?? 0))}
                   </p>
+                  {Number(note.installments ?? 0) > 1 && (
+                    <p className="note-installments">
+                      Installments: {Number(note.installments)} | Monthly
+                      payment: {formatCurrency(getInstallmentAmount(note) ?? 0)}
+                    </p>
+                  )}
                   {/* Render categories associated with the note */}
                   {note.categories && note.categories.length > 0 && (
                     <div className="note-categories">

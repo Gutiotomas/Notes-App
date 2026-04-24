@@ -6,7 +6,7 @@ export const validateNote = (
   res: Response,
   next: NextFunction,
 ) => {
-  const { title, content, archived, value } = req.body;
+  const { title, content, archived, value, installments } = req.body;
 
   // Validate that 'title' exists and is a string
   if (!title || typeof title !== "string") {
@@ -36,6 +36,16 @@ export const validateNote = (
   ) {
     return res.status(400).json({
       message: "Value must be a valid non-negative number.",
+    });
+  }
+
+  // Validate that 'installments', if provided, is a positive integer
+  if (
+    installments !== undefined &&
+    (!Number.isInteger(installments) || installments < 1)
+  ) {
+    return res.status(400).json({
+      message: "Installments must be a positive integer.",
     });
   }
 

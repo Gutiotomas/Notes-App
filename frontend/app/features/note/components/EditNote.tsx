@@ -30,10 +30,12 @@ export const EditNote: React.FC<EditNoteProps> = ({
   const [title, setTitle] = useState(""); // State for note title
   const [body, setBody] = useState(""); // State for note body
   const [value, setValue] = useState(""); // State for note value
+  const [installments, setInstallments] = useState(""); // Optional installments field
   const [errors, setErrors] = useState<{
     title?: string;
     body?: string;
     value?: string;
+    installments?: string;
   }>({}); // State for form validation errors
   const [categories, setCategories] = useState<Category[]>([]); // All available categories
   const [noteCategories, setNoteCategories] = useState<Category[]>([]); // Categories assigned to the note
@@ -50,6 +52,11 @@ export const EditNote: React.FC<EditNoteProps> = ({
           setTitle(note.title); // Set note title
           setBody(note.content); // Set note body
           setValue(String(note.value ?? 0)); // Set note value
+          setInstallments(
+            note.installments !== null && note.installments !== undefined
+              ? String(note.installments)
+              : "",
+          );
 
           const noteCategoriesData = await getCategoriesByNote(parseInt(id)); // Fetch categories assigned to the note
           setNoteCategories(noteCategoriesData); // Set note categories
@@ -83,7 +90,12 @@ export const EditNote: React.FC<EditNoteProps> = ({
 
   // Validate form fields
   const validateFields = () => {
-    const newErrors: { title?: string; body?: string; value?: string } = {};
+    const newErrors: {
+      title?: string;
+      body?: string;
+      value?: string;
+      installments?: string;
+    } = {};
 
     if (!title.trim()) {
       newErrors.title = "Title is required"; // Title is required
@@ -104,6 +116,17 @@ export const EditNote: React.FC<EditNoteProps> = ({
       }
     }
 
+    if (installments.trim()) {
+      const parsedInstallments = Number(installments);
+      if (
+        Number.isNaN(parsedInstallments) ||
+        !Number.isInteger(parsedInstallments) ||
+        parsedInstallments < 1
+      ) {
+        newErrors.installments = "Installments must be a positive whole number";
+      }
+    }
+
     setErrors(newErrors); // Set validation errors
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
@@ -119,12 +142,16 @@ export const EditNote: React.FC<EditNoteProps> = ({
     try {
       if (id) {
         const parsedValue = value.trim() ? Number(value) : 0;
+        const parsedInstallments = installments.trim()
+          ? Number(installments)
+          : null;
         await updateNote(
           parseInt(id),
           title,
           body,
           tempNoteCategories,
           parsedValue,
+          parsedInstallments,
         ); // Update note details
 
         // Determine categories to add and remove
@@ -190,6 +217,20 @@ export const EditNote: React.FC<EditNoteProps> = ({
           step="0.01"
         />
         {errors.value && <p className="error-text">{errors.value}</p>}
+
+        <Input
+          label="Installments"
+          name="installments"
+          type="number"
+          placeholder="Installments (optional)"
+          value={installments}
+          onChange={(e) => setInstallments(e.target.value)}
+          min={1}
+          step="1"
+        />
+        {errors.installments && (
+          <p className="error-text">{errors.installments}</p>
+        )}
 
         {/* TextArea for note description */}
         <TextArea

@@ -108,6 +108,11 @@ p,
   color: #1d4e89;
 }
 
+.note-installments {
+  color: #4a5568;
+  font-size: 0.95rem;
+}
+
 @media (min-width: 768px) {
   .home-container {
     max-width: 60%;

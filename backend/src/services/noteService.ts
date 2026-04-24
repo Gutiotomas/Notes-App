@@ -7,8 +7,16 @@ export const createNote = async (
   title: string,
   content: string,
   value: number = 0,
+  installments: number | null = null,
 ) => {
-  return await Note.create({ userId, title, content, value, archived: false });
+  return await Note.create({
+    userId,
+    title,
+    content,
+    value,
+    installments,
+    archived: false,
+  });
 };
 
 // Retrieves all non-archived notes for a specific user
@@ -37,7 +45,12 @@ export const getArchivedNotes = async (userId: number) => {
 export const updateNote = async (
   userId: number,
   noteId: number,
-  updates: { title?: string; content?: string; value?: number },
+  updates: {
+    title?: string;
+    content?: string;
+    value?: number;
+    installments?: number | null;
+  },
 ) => {
   const note = await Note.findOne({ where: { id: noteId, userId } });
   if (!note) throw new Error("Note not found");
