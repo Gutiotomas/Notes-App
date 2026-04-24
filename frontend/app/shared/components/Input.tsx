@@ -8,7 +8,10 @@ export const Input: React.FC<InputProps> = ({
   name,
   value,
   onChange,
+  min,
   max,
+  step,
+  maxLength,
   placeholder,
   required = false,
   checked = false,
@@ -22,10 +25,13 @@ export const Input: React.FC<InputProps> = ({
       <input
         type={type}
         name={name}
-        id={name}
+        id={id || name}
         value={value}
         onChange={onChange}
+        min={min}
         max={max}
+        step={step}
+        maxLength={maxLength}
         className="input-field"
         placeholder={placeholder}
         required={required}

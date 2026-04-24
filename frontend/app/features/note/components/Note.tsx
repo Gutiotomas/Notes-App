@@ -13,7 +13,7 @@ export const Note: React.FC = () => {
   const [title, setTitle] = useState(""); // Note title
   const [body, setBody] = useState(""); // Note description
   const [value, setValue] = useState(""); // Monetary value
-  const [installments, setInstallments] = useState(""); // Optional number of installments
+  const [installments, setInstallments] = useState("1"); // Installments defaults to 1
   const [categories, setCategories] = useState<{ id: number; name: string }[]>(
     [],
   ); // List of categories
@@ -75,15 +75,13 @@ export const Note: React.FC = () => {
       }
     }
 
-    if (installments.trim()) {
-      const parsedInstallments = Number(installments);
-      if (
-        Number.isNaN(parsedInstallments) ||
-        !Number.isInteger(parsedInstallments) ||
-        parsedInstallments < 1
-      ) {
-        newErrors.installments = "Installments must be a positive whole number";
-      }
+    const parsedInstallments = Number(installments);
+    if (
+      Number.isNaN(parsedInstallments) ||
+      !Number.isInteger(parsedInstallments) ||
+      parsedInstallments < 1
+    ) {
+      newErrors.installments = "Installments must be a positive whole number";
     }
 
     setErrors(newErrors); // Set validation errors in state
@@ -100,9 +98,7 @@ export const Note: React.FC = () => {
 
     try {
       const parsedValue = value.trim() ? Number(value) : 0;
-      const parsedInstallments = installments.trim()
-        ? Number(installments)
-        : null;
+      const parsedInstallments = installments.trim() ? Number(installments) : 1;
       await createNote(
         title,
         body,
@@ -149,9 +145,25 @@ export const Note: React.FC = () => {
           label="Installments"
           type="number"
           name="installments"
-          placeholder="Enter installments (optional)"
+          placeholder="Enter installments"
           value={installments}
-          onChange={(e) => setInstallments(e.target.value)}
+          onChange={(e) => {
+            const nextValue = e.target.value;
+
+            if (nextValue === "") {
+              setInstallments("1");
+              return;
+            }
+
+            const parsedInstallments = Number(nextValue);
+            if (Number.isNaN(parsedInstallments)) {
+              return;
+            }
+
+            setInstallments(
+              String(Math.max(1, Math.trunc(parsedInstallments))),
+            );
+          }}
           min={1}
           step="1"
         />

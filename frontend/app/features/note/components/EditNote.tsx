@@ -30,7 +30,7 @@ export const EditNote: React.FC<EditNoteProps> = ({
   const [title, setTitle] = useState(""); // State for note title
   const [body, setBody] = useState(""); // State for note body
   const [value, setValue] = useState(""); // State for note value
-  const [installments, setInstallments] = useState(""); // Optional installments field
+  const [installments, setInstallments] = useState("1"); // Installments defaults to 1
   const [errors, setErrors] = useState<{
     title?: string;
     body?: string;
@@ -55,7 +55,7 @@ export const EditNote: React.FC<EditNoteProps> = ({
           setInstallments(
             note.installments !== null && note.installments !== undefined
               ? String(note.installments)
-              : "",
+              : "1",
           );
 
           const noteCategoriesData = await getCategoriesByNote(parseInt(id)); // Fetch categories assigned to the note
@@ -144,7 +144,7 @@ export const EditNote: React.FC<EditNoteProps> = ({
         const parsedValue = value.trim() ? Number(value) : 0;
         const parsedInstallments = installments.trim()
           ? Number(installments)
-          : null;
+          : 1;
         await updateNote(
           parseInt(id),
           title,
@@ -213,8 +213,6 @@ export const EditNote: React.FC<EditNoteProps> = ({
           placeholder="Note value"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          min={0}
-          step="0.01"
         />
         {errors.value && <p className="error-text">{errors.value}</p>}
 
@@ -222,11 +220,25 @@ export const EditNote: React.FC<EditNoteProps> = ({
           label="Installments"
           name="installments"
           type="number"
-          placeholder="Installments (optional)"
+          placeholder="Installments"
           value={installments}
-          onChange={(e) => setInstallments(e.target.value)}
-          min={1}
-          step="1"
+          onChange={(e) => {
+            const nextValue = e.target.value;
+
+            if (nextValue === "") {
+              setInstallments("1");
+              return;
+            }
+
+            const parsedInstallments = Number(nextValue);
+            if (Number.isNaN(parsedInstallments)) {
+              return;
+            }
+
+            setInstallments(
+              String(Math.max(1, Math.trunc(parsedInstallments))),
+            );
+          }}
         />
         {errors.installments && (
           <p className="error-text">{errors.installments}</p>

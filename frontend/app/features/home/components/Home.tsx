@@ -25,12 +25,8 @@ export const Home: React.FC = () => {
     }).format(amount);
 
   const getInstallmentAmount = (note: any) => {
-    const installments = Number(note.installments ?? 0);
+    const installments = Math.max(1, Number(note.installments ?? 1));
     const value = Number(note.value ?? 0);
-
-    if (installments < 2) {
-      return null;
-    }
 
     return value / installments;
   };
@@ -40,14 +36,10 @@ export const Home: React.FC = () => {
 
   const getNotesMonthlyTotal = (notes: any[]) =>
     notes.reduce((sum, note) => {
-      const installments = Number(note.installments ?? 0);
+      const installments = Math.max(1, Number(note.installments ?? 1));
       const value = Number(note.value ?? 0);
 
-      if (installments > 1) {
-        return sum + value / installments;
-      }
-
-      return sum + value;
+      return sum + value / installments;
     }, 0);
 
   // State to store categories
@@ -275,12 +267,11 @@ export const Home: React.FC = () => {
                   <p className="note-value">
                     {formatCurrency(Number(note.value ?? 0))}
                   </p>
-                  {Number(note.installments ?? 0) > 1 && (
-                    <p className="note-installments">
-                      Installments: {Number(note.installments)} | Monthly
-                      payment: {formatCurrency(getInstallmentAmount(note) ?? 0)}
-                    </p>
-                  )}
+                  <p className="note-installments">
+                    Installments: {Math.max(1, Number(note.installments ?? 1))}{" "}
+                    | Monthly payment:{" "}
+                    {formatCurrency(getInstallmentAmount(note))}
+                  </p>
                   {/* Render categories associated with the note */}
                   {note.categories && note.categories.length > 0 && (
                     <div className="note-categories">
@@ -349,12 +340,11 @@ export const Home: React.FC = () => {
                   <p className="note-value">
                     {formatCurrency(Number(note.value ?? 0))}
                   </p>
-                  {Number(note.installments ?? 0) > 1 && (
-                    <p className="note-installments">
-                      Installments: {Number(note.installments)} | Monthly
-                      payment: {formatCurrency(getInstallmentAmount(note) ?? 0)}
-                    </p>
-                  )}
+                  <p className="note-installments">
+                    Installments: {Math.max(1, Number(note.installments ?? 1))}{" "}
+                    | Monthly payment:{" "}
+                    {formatCurrency(getInstallmentAmount(note))}
+                  </p>
                   {/* Render categories associated with the note */}
                   {note.categories && note.categories.length > 0 && (
                     <div className="note-categories">
