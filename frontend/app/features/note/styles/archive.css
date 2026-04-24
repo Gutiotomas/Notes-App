@@ -11,6 +11,20 @@
   margin-bottom: 1rem;
 }
 
+.filter-group {
+  width: 100%;
+}
+
+.filter-group h3 {
+  margin: 0.4rem 0;
+}
+
+.filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .categories p,
 .no-notes,
 .no-archived {
@@ -18,11 +32,17 @@
 }
 
 .clear-filter-btn,
-.category-btn {
+.category-btn,
+.active-category-btn {
   max-width: 13ch;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.active-category-btn {
+  background-color: #295f9e !important;
+  color: #ffffff !important;
 }
 
 .clear-filter-btn {

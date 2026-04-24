@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/home.css";
 import {
-  getNotesByCategory,
   getAllNotes,
   archiveNote,
   deleteNote,
@@ -35,15 +34,44 @@ export const Home: React.FC = () => {
 
   // State to store active notes
   const [activeNotes, setActiveNotes] = useState<any[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
 
-  // State to store filtered notes when a category filter is applied
-  const [filteredActiveNotes, setFilteredActiveNotes] = useState<any[]>([]);
+  const isFiltering = selectedCategoryIds.length > 0;
 
-  // State to store a message when filtering
-  const [filterMessage, setFilterMessage] = useState<string | null>(null);
+  const activeFilterCategories = useMemo(
+    () =>
+      categories.filter((category) =>
+        selectedCategoryIds.includes(category.id),
+      ),
+    [categories, selectedCategoryIds],
+  );
 
-  // State to indicate if filtering is active
-  const [isFiltering, setIsFiltering] = useState<boolean>(false);
+  const availableFilterCategories = useMemo(
+    () =>
+      categories.filter(
+        (category) => !selectedCategoryIds.includes(category.id),
+      ),
+    [categories, selectedCategoryIds],
+  );
+
+  const displayedNotes = useMemo(() => {
+    if (!isFiltering) {
+      return activeNotes;
+    }
+
+    return activeNotes.filter((note: any) => {
+      const noteCategoryIds = new Set(
+        (note.categories || []).map((category: Category) =>
+          Number(category.id),
+        ),
+      );
+
+      // Note must contain all selected categories
+      return selectedCategoryIds.every((categoryId) =>
+        noteCategoryIds.has(Number(categoryId)),
+      );
+    });
+  }, [activeNotes, selectedCategoryIds, isFiltering]);
 
   // Fetch categories and notes when the component is mounted
   useEffect(() => {
@@ -92,19 +120,12 @@ export const Home: React.FC = () => {
     });
 
     return () => window.cancelAnimationFrame(frame);
-  }, [location.state, activeNotes, filteredActiveNotes, isFiltering]);
+  }, [location.state, displayedNotes]);
 
   // Archive a note and update the state
   const handleArchiveNote = async (noteId: number) => {
     try {
       await archiveNote(noteId);
-
-      // Update filtered notes if filtering is active
-      if (isFiltering) {
-        setFilteredActiveNotes((prev) =>
-          prev.filter((note) => note.id !== noteId),
-        );
-      }
 
       // Update active notes
       setActiveNotes((prev) => prev.filter((note) => note.id !== noteId));
@@ -118,13 +139,6 @@ export const Home: React.FC = () => {
     try {
       await deleteNote(noteId);
 
-      // Update filtered notes if filtering is active
-      if (isFiltering) {
-        setFilteredActiveNotes((prev) =>
-          prev.filter((note) => note.id !== noteId),
-        );
-      }
-
       // Update active notes
       setActiveNotes((prev) => prev.filter((note) => note.id !== noteId));
     } catch (error) {
@@ -132,33 +146,20 @@ export const Home: React.FC = () => {
     }
   };
 
-  // Filter notes by category
-  const handleFilterByCategory = async (categoryId: number) => {
-    try {
-      const filteredNotes = await getNotesByCategory(categoryId);
-
-      // Handle case where no notes are found
-      if (!Array.isArray(filteredNotes) || filteredNotes.length === 0) {
-        setFilteredActiveNotes([]);
-        setIsFiltering(true);
-        return;
-      }
-
-      // Filter active notes
-      const active = filteredNotes.filter((note: any) => !note.archived);
-
-      setFilteredActiveNotes(active);
-      setFilterMessage(null);
-      setIsFiltering(true);
-    } catch (error) {
-      console.error("Error fetching notes by category:", error);
-    }
+  const addCategoryFilter = (categoryId: number) => {
+    const normalizedId = Number(categoryId);
+    setSelectedCategoryIds((prev) =>
+      prev.includes(normalizedId) ? prev : [...prev, normalizedId],
+    );
   };
 
-  // Clear the category filter
-  const handleClearFilter = () => {
-    setIsFiltering(false);
-    setFilteredActiveNotes([]);
+  const removeCategoryFilter = (categoryId: number) => {
+    const normalizedId = Number(categoryId);
+    setSelectedCategoryIds((prev) => prev.filter((id) => id !== normalizedId));
+  };
+
+  const handleClearAllFilters = () => {
+    setSelectedCategoryIds([]);
   };
 
   return (
@@ -178,44 +179,66 @@ export const Home: React.FC = () => {
           className="create-btn"
         />
       </div>
-      <h2>Category filters</h2>
       <div className="categories">
-        {/* Render category buttons */}
         {categories.length > 0 ? (
-          categories.map((category) => (
-            <Button
-              text={category.name}
-              key={category.id}
-              onClick={() => handleFilterByCategory(category.id)}
-              className="category-btn"
-            />
-          ))
+          <>
+            <div className="filter-group">
+              <h3>Category filters</h3>
+              <div className="filter-buttons">
+                {availableFilterCategories.length > 0 ? (
+                  availableFilterCategories.map((category) => (
+                    <Button
+                      text={category.name}
+                      key={category.id}
+                      onClick={() => addCategoryFilter(category.id)}
+                      className="category-btn"
+                    />
+                  ))
+                ) : (
+                  <p>All categories are active.</p>
+                )}
+              </div>
+            </div>
+
+            {activeFilterCategories.length > 0 && (
+              <div className="filter-group">
+                <h3>Active filters</h3>
+                <div className="filter-buttons">
+                  {activeFilterCategories.map((category) => (
+                    <Button
+                      text={category.name}
+                      key={category.id}
+                      onClick={() => removeCategoryFilter(category.id)}
+                      className="active-category-btn"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {isFiltering && (
+              <Button
+                text="Clear All"
+                onClick={handleClearAllFilters}
+                className="clear-filter-btn"
+              />
+            )}
+          </>
         ) : (
           <p>You don't have any categories created.</p>
         )}
-        {/* Button to clear the filter if filtering is active */}
-        {isFiltering && (
-          <Button
-            text="Clear Filter"
-            onClick={handleClearFilter}
-            className="clear-filter-btn"
-          />
-        )}
       </div>
 
-      {/* Render filtered notes if filtering is active */}
       {isFiltering ? (
         <>
-          {filterMessage && <p className="filter-message">{filterMessage}</p>}
-
           <h2>Filtered Notes</h2>
           <div className="totals-box">
             <strong>Total category value:</strong>{" "}
-            {formatCurrency(getNotesTotalValue(filteredActiveNotes))}
+            {formatCurrency(getNotesTotalValue(displayedNotes))}
           </div>
           <div className="notes-list">
-            {filteredActiveNotes.length > 0 ? (
-              filteredActiveNotes.map((note) => (
+            {displayedNotes.length > 0 ? (
+              displayedNotes.map((note) => (
                 <div
                   id={`note-card-${note.id}`}
                   key={note.id}
@@ -273,15 +296,14 @@ export const Home: React.FC = () => {
         </>
       ) : (
         <>
-          {/* Render active notes if no filter is applied */}
           <h2>Active Notes</h2>
           <div className="totals-box">
             <strong>Total notes value:</strong>{" "}
-            {formatCurrency(getNotesTotalValue(activeNotes))}
+            {formatCurrency(getNotesTotalValue(displayedNotes))}
           </div>
           <div className="notes-list">
-            {activeNotes.length > 0 ? (
-              activeNotes.map((note) => (
+            {displayedNotes.length > 0 ? (
+              displayedNotes.map((note) => (
                 <div
                   id={`note-card-${note.id}`}
                   key={note.id}
