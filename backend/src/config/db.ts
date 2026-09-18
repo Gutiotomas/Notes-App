@@ -1,6 +1,5 @@
 import { Sequelize } from "sequelize-typescript";
 import dotenv from "dotenv";
-import path from "path";
 import models from "../models";
 
 // Load environment variables from a .env file into process.env
@@ -20,24 +19,34 @@ export const sequelize = new Sequelize({
 // Register models explicitly to ensure they are initialized before use
 sequelize.addModels(models as any);
 
-const shouldSyncDatabase = process.env.NODE_ENV !== "production";
+// sync({ alter: true }) rewrites the live schema from the models, and Sequelize
+// DROPS any column that no longer appears in a model (see its Model.sync: a
+// column with no matching attribute is passed to removeColumn). That is data
+// loss with no confirmation, so it must never be the default.
+//
+// Schema changes belong in migrations, which are explicit and reviewable:
+//   npm run migrate
+//
+// This is opt-in and off unless DB_SYNC is literally "true". It used to be on
+// unless NODE_ENV happened to be "production", which meant any deployment that
+// forgot that one variable silently ran destructive DDL on every boot.
+const shouldSyncDatabase = process.env.DB_SYNC === "true";
 
-// Immediately invoked async function to handle database connection and synchronization
-(async () => {
-  try {
-    // Test the database connection
-    await sequelize.authenticate();
-    console.log("✅ Database connection successfully established.");
+// Connect (and optionally sync) before the caller starts accepting requests.
+// Previously this ran as a floating async IIFE, so the server could begin
+// serving traffic while ALTER TABLE statements were still in flight.
+export const initializeDatabase = async () => {
+  await sequelize.authenticate();
+  console.log("✅ Database connection successfully established.");
 
-    if (shouldSyncDatabase) {
-      // Synchronize models with the database, altering tables if necessary
-      await sequelize.sync({ alter: true });
-      console.log("✅ Database synchronized successfully.");
-    } else {
-      console.log("✅ Database synchronization skipped in production.");
-    }
-  } catch (error) {
-    // Log any errors that occur during connection or synchronization
-    console.error("❌ Error connecting or synchronizing the database:", error);
+  if (!shouldSyncDatabase) {
+    console.log("ℹ️  Schema sync disabled (set DB_SYNC=true to enable).");
+    return;
   }
-})();
+
+  console.warn(
+    "⚠️  DB_SYNC=true: altering the schema to match the models. This can drop columns — never use it against production data.",
+  );
+  await sequelize.sync({ alter: true });
+  console.log("✅ Database synchronized successfully.");
+};

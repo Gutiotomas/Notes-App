@@ -31,7 +31,39 @@ module.exports = {
           allowNull: false,
         },
       });
+    } else {
+      // 20250415195316-init-schema created users.id as a SIGNED int, while the
+      // User model and every userId foreign key below use INTEGER UNSIGNED.
+      // MySQL requires both sides of a foreign key to match exactly, signedness
+      // included, so leaving them out of step makes the createTable calls below
+      // fail with "Referencing column 'userId' and referenced column 'id' ...
+      // are incompatible" and a fresh install never gets past this migration.
+      const usersTable = await queryInterface.describeTable("users");
+      const isSigned = !String(usersTable.id?.type || "")
+        .toUpperCase()
+        .includes("UNSIGNED");
+
+      // Only safe while nothing references users.id yet: MySQL refuses to change
+      // the signedness of a column that a live foreign key points at. When those
+      // tables already exist the database is self-consistent already (MySQL
+      // enforced it when they were created), so it is left untouched.
+      if (isSigned && !hasTable("categories") && !hasTable("notes")) {
+        // Raw DDL rather than changeColumn: the latter re-issues PRIMARY KEY and
+        // MySQL rejects defining it twice.
+        await queryInterface.sequelize.query(
+          "ALTER TABLE `users` MODIFY `id` INT UNSIGNED NOT NULL AUTO_INCREMENT",
+        );
+      }
     }
+
+    // Whatever users.id ended up being, the foreign keys must mirror it exactly.
+    // Reading it back covers databases this migration is not allowed to alter.
+    const usersDescription = await queryInterface.describeTable("users");
+    const userIdType = String(usersDescription.id?.type || "")
+      .toUpperCase()
+      .includes("UNSIGNED")
+      ? Sequelize.INTEGER.UNSIGNED
+      : Sequelize.INTEGER;
 
     if (!hasTable("categories")) {
       await queryInterface.createTable("categories", {
@@ -46,7 +78,7 @@ module.exports = {
           allowNull: false,
         },
         userId: {
-          type: Sequelize.INTEGER.UNSIGNED,
+          type: userIdType,
           allowNull: false,
           references: {
             model: "users",
@@ -67,7 +99,7 @@ module.exports = {
           allowNull: false,
         },
         userId: {
-          type: Sequelize.INTEGER.UNSIGNED,
+          type: userIdType,
           allowNull: false,
           references: {
             model: "users",

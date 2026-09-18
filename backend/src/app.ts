@@ -2,7 +2,7 @@ import "reflect-metadata";
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { sequelize } from "./config/db";
+import { initializeDatabase } from "./config/db";
 import authRoutes from "./routes/authRoutes";
 import noteRoutes from "./routes/noteRoutes";
 import categoryRoutes from "./routes/categoryRoutes";
@@ -29,17 +29,20 @@ app.use("/categories", categoryRoutes); // Routes for managing categories
 // Function to start the server and connect to the database
 const startServer = async () => {
   try {
-    // Authenticate the database connection
-    await sequelize.authenticate();
-    console.log("✅ Database connected successfully!");
+    // Finish connecting (and syncing, when explicitly enabled) before the
+    // server accepts its first request.
+    await initializeDatabase();
 
     // Start the Express server
     app.listen(PORT, () => {
       console.log(`🌐 Server running on http://localhost:${PORT}`);
     });
   } catch (error) {
-    // Log an error if the database connection fails
+    // Exit instead of lingering: a process that stays alive without a database
+    // never serves a working request, and looks healthy to a supervisor or
+    // container orchestrator that only checks whether it is running.
     console.error("❌ Database connection failed:", error);
+    process.exit(1);
   }
 };
 

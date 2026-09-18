@@ -34,7 +34,8 @@ export default class Category extends Model {
   // Foreign key column referencing the User model
   @ForeignKey(() => User)
   @Column({
-    type: DataType.INTEGER,
+    // Must match User.id (INTEGER.UNSIGNED); see the note in noteModel.ts.
+    type: DataType.INTEGER.UNSIGNED,
     allowNull: false,
   })
   userId!: number; // ID of the user who owns the category

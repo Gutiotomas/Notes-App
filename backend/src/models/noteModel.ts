@@ -28,7 +28,10 @@ export default class Note extends Model {
   // Foreign key referencing the "users" table
   @ForeignKey(() => User)
   @Column({
-    type: DataType.INTEGER, // Integer type for the foreign key
+    // Must match User.id (INTEGER.UNSIGNED): MySQL rejects a foreign key whose
+    // sides differ in signedness, and sync({ alter: true }) would otherwise try
+    // to rewrite this column back to signed on every boot.
+    type: DataType.INTEGER.UNSIGNED,
     allowNull: false, // Field cannot be null
   })
   userId!: number;
