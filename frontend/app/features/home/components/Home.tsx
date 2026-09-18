@@ -9,6 +9,7 @@ import {
 import { getCategories } from "../../note/services/categoryService";
 import type { Category } from "../utils/types";
 import { Button } from "../../../shared/components/Button";
+import { useCategoryFilters } from "../../../shared/hooks/useCategoryFilters";
 
 // Home component: Displays the main page with notes and categories
 export const Home: React.FC = () => {
@@ -49,44 +50,21 @@ export const Home: React.FC = () => {
 
   // State to store active notes
   const [activeNotes, setActiveNotes] = useState<any[]>([]);
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
 
-  const isFiltering = selectedCategoryIds.length > 0;
+  const {
+    isFiltering,
+    activeFilterCategories,
+    availableFilterCategories,
+    addCategoryFilter,
+    removeCategoryFilter,
+    clearAllFilters,
+    filterNotes,
+  } = useCategoryFilters("home", categories);
 
-  const activeFilterCategories = useMemo(
-    () =>
-      categories.filter((category) =>
-        selectedCategoryIds.includes(category.id),
-      ),
-    [categories, selectedCategoryIds],
+  const displayedNotes = useMemo(
+    () => filterNotes(activeNotes),
+    [filterNotes, activeNotes],
   );
-
-  const availableFilterCategories = useMemo(
-    () =>
-      categories.filter(
-        (category) => !selectedCategoryIds.includes(category.id),
-      ),
-    [categories, selectedCategoryIds],
-  );
-
-  const displayedNotes = useMemo(() => {
-    if (!isFiltering) {
-      return activeNotes;
-    }
-
-    return activeNotes.filter((note: any) => {
-      const noteCategoryIds = new Set(
-        (note.categories || []).map((category: Category) =>
-          Number(category.id),
-        ),
-      );
-
-      // Note must contain all selected categories
-      return selectedCategoryIds.every((categoryId) =>
-        noteCategoryIds.has(Number(categoryId)),
-      );
-    });
-  }, [activeNotes, selectedCategoryIds, isFiltering]);
 
   // Fetch categories and notes when the component is mounted
   useEffect(() => {
@@ -161,22 +139,6 @@ export const Home: React.FC = () => {
     }
   };
 
-  const addCategoryFilter = (categoryId: number) => {
-    const normalizedId = Number(categoryId);
-    setSelectedCategoryIds((prev) =>
-      prev.includes(normalizedId) ? prev : [...prev, normalizedId],
-    );
-  };
-
-  const removeCategoryFilter = (categoryId: number) => {
-    const normalizedId = Number(categoryId);
-    setSelectedCategoryIds((prev) => prev.filter((id) => id !== normalizedId));
-  };
-
-  const handleClearAllFilters = () => {
-    setSelectedCategoryIds([]);
-  };
-
   return (
     <div className="home-container">
       <h1>My Notes</h1>
@@ -234,7 +196,7 @@ export const Home: React.FC = () => {
             {isFiltering && (
               <Button
                 text="Clear All"
-                onClick={handleClearAllFilters}
+                onClick={clearAllFilters}
                 className="clear-filter-btn"
               />
             )}

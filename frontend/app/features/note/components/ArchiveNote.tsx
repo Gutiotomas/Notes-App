@@ -9,6 +9,7 @@ import {
 import { getCategories } from "../../note/services/categoryService";
 import "../styles/archive.css";
 import type { Category } from "~/features/home/utils/types";
+import { useCategoryFilters } from "~/shared/hooks/useCategoryFilters";
 
 // Archive component to manage and display archived notes
 export const Archive: React.FC = () => {
@@ -49,43 +50,21 @@ export const Archive: React.FC = () => {
 
   // State to store all archived notes
   const [archivedNotes, setArchivedNotes] = useState<any[]>([]);
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
 
-  const isFiltering = selectedCategoryIds.length > 0;
+  const {
+    isFiltering,
+    activeFilterCategories,
+    availableFilterCategories,
+    addCategoryFilter,
+    removeCategoryFilter,
+    clearAllFilters,
+    filterNotes,
+  } = useCategoryFilters("archive", categories);
 
-  const activeFilterCategories = useMemo(
-    () =>
-      categories.filter((category) =>
-        selectedCategoryIds.includes(category.id),
-      ),
-    [categories, selectedCategoryIds],
+  const displayedArchivedNotes = useMemo(
+    () => filterNotes(archivedNotes),
+    [filterNotes, archivedNotes],
   );
-
-  const availableFilterCategories = useMemo(
-    () =>
-      categories.filter(
-        (category) => !selectedCategoryIds.includes(category.id),
-      ),
-    [categories, selectedCategoryIds],
-  );
-
-  const displayedArchivedNotes = useMemo(() => {
-    if (!isFiltering) {
-      return archivedNotes;
-    }
-
-    return archivedNotes.filter((note: any) => {
-      const noteCategoryIds = new Set(
-        (note.categories || []).map((category: Category) =>
-          Number(category.id),
-        ),
-      );
-
-      return selectedCategoryIds.every((categoryId) =>
-        noteCategoryIds.has(Number(categoryId)),
-      );
-    });
-  }, [archivedNotes, selectedCategoryIds, isFiltering]);
 
   // Fetch categories and archived notes on component mount
   useEffect(() => {
@@ -134,22 +113,6 @@ export const Archive: React.FC = () => {
 
     return () => window.cancelAnimationFrame(frame);
   }, [location.state, displayedArchivedNotes]);
-
-  const addCategoryFilter = (categoryId: number) => {
-    const normalizedId = Number(categoryId);
-    setSelectedCategoryIds((prev) =>
-      prev.includes(normalizedId) ? prev : [...prev, normalizedId],
-    );
-  };
-
-  const removeCategoryFilter = (categoryId: number) => {
-    const normalizedId = Number(categoryId);
-    setSelectedCategoryIds((prev) => prev.filter((id) => id !== normalizedId));
-  };
-
-  const handleClearAllFilters = () => {
-    setSelectedCategoryIds([]);
-  };
 
   // Unarchive a specific note
   const handleUnarchiveNote = async (noteId: number) => {
@@ -219,7 +182,7 @@ export const Archive: React.FC = () => {
             {isFiltering && (
               <Button
                 text="Clear All"
-                onClick={handleClearAllFilters}
+                onClick={clearAllFilters}
                 className="clear-filter-btn"
               />
             )}
