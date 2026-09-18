@@ -36,4 +36,13 @@ export default class User extends Model {
   @AllowNull(false)
   @Column(DataType.STRING(255))
   password!: string; // User's hashed password
+
+  // Strip the password hash from anything serialized to a client. Doing it here
+  // rather than per controller means no future response can leak it by accident.
+  // Reads of `user.password` (e.g. bcrypt.compare on login) are unaffected.
+  toJSON() {
+    const values = { ...super.toJSON() } as Record<string, unknown>;
+    delete values.password;
+    return values;
+  }
 }

@@ -72,10 +72,16 @@ export const toggleArchiveNote = async (userId: number, noteId: number) => {
   return await note.save();
 };
 
-// Adds a category to a specific note
-export const addCategoryToNote = async (noteId: number, categoryId: number) => {
-  const note = await Note.findByPk(noteId);
-  const category = await Category.findByPk(categoryId);
+// Adds one of the user's categories to one of the user's notes.
+// Both sides are scoped to userId: otherwise a valid token could attach or
+// detach categories on notes belonging to somebody else.
+export const addCategoryToNote = async (
+  noteId: number,
+  categoryId: number,
+  userId: number,
+) => {
+  const note = await Note.findOne({ where: { id: noteId, userId } });
+  const category = await Category.findOne({ where: { id: categoryId, userId } });
 
   if (!note || !category) throw new Error("Note or Category not found");
 
@@ -83,13 +89,14 @@ export const addCategoryToNote = async (noteId: number, categoryId: number) => {
   return note;
 };
 
-// Removes a category from a specific note
+// Removes one of the user's categories from one of the user's notes
 export const removeCategoryFromNote = async (
   noteId: number,
   categoryId: number,
+  userId: number,
 ) => {
-  const note = await Note.findByPk(noteId);
-  const category = await Category.findByPk(categoryId);
+  const note = await Note.findOne({ where: { id: noteId, userId } });
+  const category = await Category.findOne({ where: { id: categoryId, userId } });
 
   if (!note || !category) throw new Error("Note or Category not found");
 

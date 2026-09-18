@@ -4,6 +4,11 @@ import { CustomRequest } from "../types/CustomRequest";
 import * as noteService from "../services/noteService";
 import Category from "../models/categoryModel";
 
+// noteService signals "absent or not yours" by throwing; anything else is a
+// real server fault and must not be reported to the client as a 404.
+const isNotFound = (error: unknown) =>
+  error instanceof Error && error.message === "Note or Category not found";
+
 // Controller to create a new note
 export const createNote = async (req: CustomRequest, res: Response) => {
   try {
@@ -24,8 +29,10 @@ export const createNote = async (req: CustomRequest, res: Response) => {
 
     // Associate categories with the note if provided
     if (categories && Array.isArray(categories)) {
+      // Scoped to userId so ids belonging to another account are ignored
+      // instead of being pulled into this user's note.
       const categoryInstances = await Category.findAll({
-        where: { id: categories },
+        where: { id: categories, userId },
       });
       await note.$set("categories", categoryInstances);
     }
@@ -101,10 +108,11 @@ export const updateNote = async (req: CustomRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { title, content, categories, value, installments } = req.body;
+    const userId = req.user!.id;
 
     // Find the note to update
     const note = await Note.findOne({
-      where: { id, userId: req.user!.id },
+      where: { id, userId },
     });
 
     if (!note) {
@@ -125,8 +133,10 @@ export const updateNote = async (req: CustomRequest, res: Response) => {
 
     // Update the note's categories if provided
     if (categories && Array.isArray(categories)) {
+      // Scoped to userId so ids belonging to another account are ignored
+      // instead of being pulled into this user's note.
       const categoryInstances = await Category.findAll({
-        where: { id: categories },
+        where: { id: categories, userId },
       });
       await note.$set("categories", categoryInstances);
     }
@@ -185,13 +195,17 @@ export const toggleArchiveNote = async (req: CustomRequest, res: Response) => {
 export const addCategoryToNote = async (req: CustomRequest, res: Response) => {
   try {
     const { noteId, categoryId } = req.body;
+    const userId = req.user!.id; // Both note and category must belong to the caller
 
     // Use the service to add the category to the note
-    const note = await noteService.addCategoryToNote(noteId, categoryId);
+    const note = await noteService.addCategoryToNote(noteId, categoryId, userId);
 
     res.json(note);
   } catch (error) {
-    res.status(500).json({ message: "Error adding category to note", error });
+    if (isNotFound(error)) {
+      return res.status(404).json({ message: "Note or Category not found" });
+    }
+    res.status(500).json({ message: "Error adding category to note" });
   }
 };
 
@@ -202,15 +216,21 @@ export const removeCategoryFromNote = async (
 ) => {
   try {
     const { noteId, categoryId } = req.body;
+    const userId = req.user!.id; // Both note and category must belong to the caller
 
     // Use the service to remove the category from the note
-    const note = await noteService.removeCategoryFromNote(noteId, categoryId);
+    const note = await noteService.removeCategoryFromNote(
+      noteId,
+      categoryId,
+      userId,
+    );
 
     res.json(note);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error removing category from note", error });
+    if (isNotFound(error)) {
+      return res.status(404).json({ message: "Note or Category not found" });
+    }
+    res.status(500).json({ message: "Error removing category from note" });
   }
 };
 

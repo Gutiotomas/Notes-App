@@ -113,5 +113,7 @@
     "outDir": "./dist",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
-  }
+  },
+  /* Keep the authorization check out of the production build in dist/. */
+  "exclude": ["src/__checks__", "node_modules", "dist"]
 }

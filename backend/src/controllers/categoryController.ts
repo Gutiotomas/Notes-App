@@ -1,6 +1,12 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import * as categoryService from "../services/categoryService";
 import { CustomRequest } from "../types/CustomRequest";
+
+// The services signal "absent or not yours" by throwing; anything else is a
+// genuine server fault and must not be reported to the client as a 404.
+const isNotFound = (error: unknown) =>
+  error instanceof Error &&
+  (error.message === "Category not found" || error.message === "Note not found");
 
 // Controller to create a new category
 export const createCategory = async (req: CustomRequest, res: Response) => {
@@ -34,23 +40,29 @@ export const getCategories = async (req: CustomRequest, res: Response) => {
   }
 };
 
-// Controller to fetch a category by its ID
-export const getCategoryById = async (req: Request, res: Response) => {
+// Controller to fetch one of the authenticated user's categories by its ID
+export const getCategoryById = async (req: CustomRequest, res: Response) => {
   try {
     const { id } = req.params; // Extract category ID from request parameters
-    const category = await categoryService.getCategoryById(parseInt(id)); // Fetch category by ID
+    const userId = req.user!.id; // Only the owner may read it
+    const category = await categoryService.getCategoryById(parseInt(id), userId);
     res.json(category); // Respond with the category
   } catch (error) {
-    // Handle errors if the category is not found
-    res.status(404).json({ message: "Category not found", error });
+    // A missing category and one owned by somebody else answer alike, so the
+    // response cannot be used to probe which ids exist.
+    if (isNotFound(error)) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+    res.status(500).json({ message: "Error fetching category" });
   }
 };
 
-// Controller to update a category by its ID
-export const updateCategory = async (req: Request, res: Response) => {
+// Controller to rename one of the authenticated user's categories
+export const updateCategory = async (req: CustomRequest, res: Response) => {
   try {
     const { id } = req.params; // Extract category ID from request parameters
     const { name } = req.body; // Extract new category name from request body
+    const userId = req.user!.id; // Only the owner may rename it
 
     // Validate that the category name is provided
     if (!name) {
@@ -58,23 +70,32 @@ export const updateCategory = async (req: Request, res: Response) => {
     }
 
     // Call service to update the category
-    const category = await categoryService.updateCategory(parseInt(id), name);
+    const category = await categoryService.updateCategory(
+      parseInt(id),
+      name,
+      userId,
+    );
     res.json(category); // Respond with the updated category
   } catch (error) {
-    // Handle errors if the category is not found
-    res.status(404).json({ message: "Category not found", error });
+    if (isNotFound(error)) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+    res.status(500).json({ message: "Error updating category" });
   }
 };
 
-// Controller to delete a category by its ID
-export const deleteCategory = async (req: Request, res: Response) => {
+// Controller to delete one of the authenticated user's categories
+export const deleteCategory = async (req: CustomRequest, res: Response) => {
   try {
     const { id } = req.params; // Extract category ID from request parameters
-    await categoryService.deleteCategory(parseInt(id)); // Call service to delete the category
+    const userId = req.user!.id; // Only the owner may delete it
+    await categoryService.deleteCategory(parseInt(id), userId);
     res.status(200).json({ message: "Category deleted successfully" }); // Respond with success message
   } catch (error) {
-    // Handle errors if the category is not found
-    res.status(404).json({ message: "Category not found", error });
+    if (isNotFound(error)) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+    res.status(500).json({ message: "Error deleting category" });
   }
 };
 
@@ -85,15 +106,17 @@ export const getCategoriesByNote = async (
 ) => {
   try {
     const { noteId } = req.params; // Extract note ID from request parameters
+    const userId = req.user!.id; // The note must belong to the caller
     const categories = await categoryService.getCategoriesByNote(
-      parseInt(noteId)
+      parseInt(noteId),
+      userId
     ); // Fetch categories associated with the note
     res.json(categories); // Respond with the list of categories
   } catch (error) {
-    // Handle any errors during fetching categories by note
-    res
-      .status(500)
-      .json({ message: "Error fetching categories by note", error });
+    if (isNotFound(error)) {
+      return res.status(404).json({ message: "Note not found" });
+    }
+    res.status(500).json({ message: "Error fetching categories by note" });
   }
 };
 
@@ -104,14 +127,16 @@ export const getCategoriesNotInNote = async (
 ) => {
   try {
     const { noteId } = req.params; // Extract note ID from request parameters
+    const userId = req.user!.id; // The note must belong to the caller
     const categories = await categoryService.getCategoriesNotInNote(
-      parseInt(noteId)
+      parseInt(noteId),
+      userId
     ); // Fetch categories not associated with the note
     res.json(categories); // Respond with the list of categories
   } catch (error) {
-    // Handle any errors during fetching categories not in note
-    res
-      .status(500)
-      .json({ message: "Error fetching categories not in note", error });
+    if (isNotFound(error)) {
+      return res.status(404).json({ message: "Note not found" });
+    }
+    res.status(500).json({ message: "Error fetching categories not in note" });
   }
 };

@@ -6,6 +6,17 @@ set -e
 # Define environment variables
 BACKEND_DIR="backend"
 FRONTEND_DIR="frontend"
+
+# ---------------------------------------------------------------------------
+# LOCAL DEVELOPMENT DEFAULTS ONLY. Everything below targets a MySQL running on
+# localhost and is committed on purpose so a fresh clone starts with one command.
+#
+# Do NOT reuse these when deploying. JWT_SECRET is public to anyone with access
+# to this repository, so any server that keeps it can have its session tokens
+# forged by a third party; the seeded admin account would also be created there
+# with a known password. Supply real values via the environment instead.
+# ---------------------------------------------------------------------------
+
 # Backend environment variables (exported so Node/seeders see them)
 export DB_NAME="notes_app"
 export DB_USER="root"
