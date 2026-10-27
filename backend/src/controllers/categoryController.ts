@@ -8,6 +8,13 @@ const isNotFound = (error: unknown) =>
   error instanceof Error &&
   (error.message === "Category not found" || error.message === "Note not found");
 
+const routeParam = (value: string | string[] | undefined): string => {
+  if (typeof value !== "string") {
+    throw new TypeError("Invalid route parameter");
+  }
+  return value;
+};
+
 // Controller to create a new category
 export const createCategory = async (req: CustomRequest, res: Response) => {
   try {
@@ -45,7 +52,10 @@ export const getCategoryById = async (req: CustomRequest, res: Response) => {
   try {
     const { id } = req.params; // Extract category ID from request parameters
     const userId = req.user!.id; // Only the owner may read it
-    const category = await categoryService.getCategoryById(parseInt(id), userId);
+    const category = await categoryService.getCategoryById(
+      parseInt(routeParam(id)),
+      userId,
+    );
     res.json(category); // Respond with the category
   } catch (error) {
     // A missing category and one owned by somebody else answer alike, so the
@@ -71,7 +81,7 @@ export const updateCategory = async (req: CustomRequest, res: Response) => {
 
     // Call service to update the category
     const category = await categoryService.updateCategory(
-      parseInt(id),
+      parseInt(routeParam(id)),
       name,
       userId,
     );
@@ -89,7 +99,7 @@ export const deleteCategory = async (req: CustomRequest, res: Response) => {
   try {
     const { id } = req.params; // Extract category ID from request parameters
     const userId = req.user!.id; // Only the owner may delete it
-    await categoryService.deleteCategory(parseInt(id), userId);
+    await categoryService.deleteCategory(parseInt(routeParam(id)), userId);
     res.status(200).json({ message: "Category deleted successfully" }); // Respond with success message
   } catch (error) {
     if (isNotFound(error)) {
@@ -108,7 +118,7 @@ export const getCategoriesByNote = async (
     const { noteId } = req.params; // Extract note ID from request parameters
     const userId = req.user!.id; // The note must belong to the caller
     const categories = await categoryService.getCategoriesByNote(
-      parseInt(noteId),
+      parseInt(routeParam(noteId)),
       userId
     ); // Fetch categories associated with the note
     res.json(categories); // Respond with the list of categories
@@ -129,7 +139,7 @@ export const getCategoriesNotInNote = async (
     const { noteId } = req.params; // Extract note ID from request parameters
     const userId = req.user!.id; // The note must belong to the caller
     const categories = await categoryService.getCategoriesNotInNote(
-      parseInt(noteId),
+      parseInt(routeParam(noteId)),
       userId
     ); // Fetch categories not associated with the note
     res.json(categories); // Respond with the list of categories

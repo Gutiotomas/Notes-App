@@ -33,7 +33,7 @@ This is a full-stack Notes Application that allows users to create, edit, delete
 
 ### Backend
 
-- **Node.js**: Requires a version >= 18.17.0 - JavaScript runtime for building the backend.
+- **Node.js**: Requires Node.js 26.12 or newer - JavaScript runtime for building the backend and frontend.
 - **Express**: ^5.1.0 - Web framework for building REST APIs.
 - **Sequelize**: ^6.37.7 - ORM for interacting with the MySQL database.
 - **sequelize-typescript**: ^2.1.6 - TypeScript decorators support for Sequelize.
@@ -50,9 +50,9 @@ This is a full-stack Notes Application that allows users to create, edit, delete
 
 - **React**: ^19.0.0 - JavaScript library for building user interfaces.
 - **React DOM**: ^19.0.0
-- **React Router**: ^7.13.0 - Routing and server/serve helpers.
-- **TypeScript**: ^5.7.2 - Superset of JavaScript for type safety.
-- **Vite**: ^6.4.1 - Build tool for fast development.
+- **React Router**: ^7.18.5 - Routing and server/serve helpers.
+- **TypeScript**: ^5.9.3 - Superset of JavaScript for type safety.
+- **Vite**: ^6.4.5 - Build tool for fast development.
 - **Tailwind CSS**: ^4.0.0 - Utility-first CSS framework for styling.
 - **react-icons**: ^5.5.0 - Icon library for React.
 - **jwt-decode**: ^4.0.0 - Decode JWT tokens on the client.
