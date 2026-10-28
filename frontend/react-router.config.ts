@@ -2,8 +2,7 @@ import type { Config } from "@react-router/dev/config";
 
 export default {
   // Config options...
-  // Server-side render by default, to enable SPA mode set this to `false`
-  ssr: true,
-  // Enable route discovery (lazy manifests) so dev server exposes manifestPath
-  routeDiscovery: { mode: "lazy", manifestPath: "/__manifest" },
+  // Serve the frontend as a static SPA, like the Arqueo frontend. This avoids
+  // a serverless React Router invocation on every Vercel request.
+  ssr: false,
 } satisfies Config;
