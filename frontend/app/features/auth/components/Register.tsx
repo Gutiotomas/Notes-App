@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { storeAuthToken } from "../../../shared/utils/sessionService";
 import { Input } from "../../../shared/components/Input";
 import { Button } from "../../../shared/components/Button";
 import { Link, useNavigate } from "react-router-dom";
@@ -83,7 +84,7 @@ export const Register: React.FC = () => {
 
         // If registration is successful, store the token and navigate to the home page
         if (token) {
-          localStorage.setItem("authToken", token);
+          storeAuthToken(token);
           navigate("/home");
         } else {
           // Handle case where email is already in use

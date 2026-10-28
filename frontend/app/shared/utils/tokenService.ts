@@ -1,9 +1,7 @@
 import { jwtDecode } from "jwt-decode";
+import { getStoredAuthToken } from "./sessionService";
 
-// Function to retrieve the authentication token from localStorage
-const getStoredAuthToken = (): string | null => {
-  return localStorage.getItem("authToken") || localStorage.getItem("token");
-};
+export { getStoredAuthToken };
 
 // Function to retrieve the authentication token from localStorage
 export const getAuthToken = (): string | null => {

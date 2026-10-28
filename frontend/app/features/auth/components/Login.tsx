@@ -1,4 +1,12 @@
 import React, { useState } from "react";
+import {
+  ServerWakeStatus,
+  useServerWakeTimer,
+} from "../../../shared/components/ServerWakeStatus";
+import {
+  consumeSessionExpiredNotice,
+  storeAuthToken,
+} from "../../../shared/utils/sessionService";
 import { Input } from "../../../shared/components/Input";
 import { Button } from "../../../shared/components/Button";
 import { Link, useNavigate } from "react-router-dom";
@@ -16,6 +24,9 @@ export const Login: React.FC = () => {
 
   // State to manage form validation errors
   const [errors, setErrors] = useState<Partial<LoginData>>({});
+  const [sending, setSending] = useState(false);
+  const [sessionExpired] = useState(consumeSessionExpiredNotice);
+  const waitingSeconds = useServerWakeTimer(sending);
 
   // React Router's navigation hook
   const navigate = useNavigate();
@@ -54,12 +65,13 @@ export const Login: React.FC = () => {
     } else {
       // Clear errors and proceed with login
       setErrors({});
+      setSending(true);
       try {
         // Attempt to log in the user
         const token = await loginUser(formData.email, formData.password);
         if (token) {
           // Save the token in local storage and navigate to the home page
-          localStorage.setItem("authToken", token);
+          storeAuthToken(token);
           navigate("/home");
         } else {
           // Set error if credentials are invalid
@@ -71,6 +83,8 @@ export const Login: React.FC = () => {
         // Handle server errors
         console.error("Error during login:", error);
         setErrors({ email: "Error en el servidor" });
+      } finally {
+        setSending(false);
       }
     }
   };
@@ -87,6 +101,12 @@ export const Login: React.FC = () => {
     <div className="auth-container">
       {/* Page title */}
       <h1 className="auth-title">Login</h1>
+
+      {sessionExpired && (
+        <p className="session-expired-notice" role="status">
+          Your session closed for security. Please log in again.
+        </p>
+      )}
 
       <form
         onSubmit={(e) => {
@@ -124,8 +144,15 @@ export const Login: React.FC = () => {
 
         {/* Login button */}
         <div className="button-container">
-          <Button text="Login" type="submit" className="auth-button" />
+          <Button
+            text={sending ? "Logging in..." : "Login"}
+            type="submit"
+            className="auth-button"
+            disabled={sending}
+          />
         </div>
+
+        {waitingSeconds !== null && <ServerWakeStatus seconds={waitingSeconds} />}
       </form>
 
       {/* Link to the registration page */}

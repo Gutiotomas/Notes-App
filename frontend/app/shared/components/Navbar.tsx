@@ -5,6 +5,7 @@ import "../styles/navbar.css";
 import { Button } from "./Button";
 import { getAuthToken } from "../utils/tokenService";
 import { clearStoredCategoryFilters } from "../hooks/useCategoryFilters";
+import { clearStoredSession } from "../utils/sessionService";
 
 // Navbar component: Handles navigation and user session state
 export const Navbar: React.FC = () => {
@@ -72,8 +73,7 @@ export const Navbar: React.FC = () => {
   // Function to handle user logout
   const handleLogout = () => {
     if (typeof window !== "undefined") {
-      localStorage.removeItem("authToken"); // Remove the auth token from localStorage
-      localStorage.removeItem("token");
+      clearStoredSession();
       clearStoredCategoryFilters(); // Category ids are per user, so drop them on logout
     }
     setIsLoggedIn(false); // Update the logged-in state
